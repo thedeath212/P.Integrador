@@ -1,17 +1,17 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200">
+  <div id="Home"></div>
+  <div class="min-h-screen bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200" >
     <header class="flex justify-between items-center p-4 bg-white shadow-md">
-      <div class="text-2xl font-bold text-blue-600">multitrabajos</div>
+      <div class="text-2xl font-bold text-blue-600" >multitrabajos</div>
       <nav class="space-x-4">
         <a href="#" class="text-zinc-600">Buscar empresas</a>
         <a href="#" class="text-zinc-600">Puestos, empresas o palabra clave</a>
         <a href="#" class="text-zinc-600">Jóvenes profesionales</a>
         <a href="#" class="text-zinc-600">Puestos ejecutivos y directivos</a>
-        <a href="#" class="text-zinc-600">Salarios</a>
       </nav>
       <div class="space-x-4">
         <a href="#" class="text-pink-600">Publicar gratis</a>
-        <a href="#" class="bg-pink-600 text-white px-4 py-2 rounded">Crear cuenta</a>
+        <router-link to="/register" class="bg-pink-600 text-white px-4 py-2 rounded">Crear cuenta</router-link>
       </div>
     </header>
 
@@ -113,7 +113,18 @@
     </footer>
   </div>
 </template>
+<script>
+// Asegúrate de importar Vue y el componente de Vue Router adecuadamente
+import { defineComponent } from 'vue';
+import { RouterLink } from 'vue-router';
 
+export default defineComponent({
+  components: {
+    RouterLink // Asegúrate de incluir RouterLink como componente
+  },
+  // Otro código de tu componente
+});
+</script>
 
 
 <style scoped>
