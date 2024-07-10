@@ -2,7 +2,8 @@
 
 import { createRouter, createWebHistory } from 'vue-router';
 import HelloWorld from './views/HelloWorld.vue'; // Ajusta la ruta según la ubicación real de tu vista principal
-import Registrar from './views/Registrar.vue'; // Ajusta la ruta según la ubicación real de tu vista de registro
+import Registrar from './views/Registrar.vue'; 
+import UsuariosList from    './views/CrudViews/Index.vue';
 
 const routes = [
   {
@@ -14,8 +15,14 @@ const routes = [
     path: '/register',
     name: 'Registrar',
     component: Registrar
+  },
+  {
+    path: '/usuarios',
+    name: 'UsuariosList',
+    component: UsuariosList
+    
   }
-  // Agrega más rutas según sea necesario
+ 
 ];
 
 const router = createRouter({

@@ -1,8 +1,7 @@
 <template>
-  <div id="Home"></div>
-  <div class="min-h-screen bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200" >
+  <div id="HomePage" class="min-h-screen bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200">
     <header class="flex justify-between items-center p-4 bg-white shadow-md">
-      <div class="text-2xl font-bold text-blue-600" >multitrabajos</div>
+      <div class="text-2xl font-bold text-blue-600">multitrabajos</div>
       <nav class="space-x-4">
         <a href="#" class="text-zinc-600">Buscar empresas</a>
         <a href="#" class="text-zinc-600">Puestos, empresas o palabra clave</a>
@@ -23,43 +22,48 @@
         <div class="mt-8 flex justify-center space-x-4">
           <input type="text" placeholder="Puestos, empresa o palabra clave" class="p-4 border rounded w-1/3">
           <select class="p-4 border rounded w-1/4">
-            <option>Todo el país</option>
+            <option value="">Todo el país</option>
+            <option v-for="provincia in provincias" :key="provincia.proId" :value="provincia.proId">
+              {{ provincia.proNombre }}
+            </option>
           </select>
           <button class="bg-pink-600 text-white px-8 py-4 rounded">Buscar empleo</button>
         </div>
-      </div>
-      <div class="mt-16 flex justify-center">
-        <img src="https://placehold.co/600x400" alt="Postulate" class="rounded shadow-lg">
-      </div>
-      <div class="mt-16 flex justify-center space-x-8">
-        <a href="#" class="bg-white p-4 rounded shadow-md hover:shadow-lg transition">Jóvenes profesionales</a>
-        <a href="#" class="bg-white p-4 rounded shadow-md hover:shadow-lg transition">Puestos ejecutivos y directivos</a>
-      </div>
-      <div class="mt-16 text-center">
-        <h2 class="text-2xl font-bold text-zinc-800">Estas empresas necesitan tu talento</h2>
-        <div class="mt-8 flex justify-center space-x-8">
-          <img src="https://placehold.co/100x50" alt="Nippo" class="rounded shadow-md">
-          <img src="https://placehold.co/100x50" alt="Multitrabajos" class="rounded shadow-md">
-          <img src="https://placehold.co/100x50" alt="Sedem" class="rounded shadow-md">
-          <img src="https://placehold.co/100x50" alt="Company 4" class="rounded shadow-md">
-          <img src="https://placehold.co/100x50" alt="Company 5" class="rounded shadow-md">
+        <div class="mt-16 flex justify-center">
+          <img src="https://placehold.co/600x400" alt="Postulate" class="rounded shadow-lg">
         </div>
-        <button class="mt-8 bg-pink-600 text-white px-8 py-4 rounded">Ver todas las empresas</button>
-      </div>
-      <div class="mt-16 bg-white py-16">
-        <div class="container mx-auto flex justify-between items-center">
-          <div class="w-1/2">
-            <h3 class="text-2xl font-bold text-zinc-800">Créate una cuenta y encuentra el trabajo que buscas</h3>
-            <ul class="mt-4 space-y-2 text-zinc-600">
-              <li>Ingresa en la opción Crear cuenta, escribe tus datos y confirma.</li>
-              <li>Completa la información principal de tu perfil a través de los diferentes pasos para que las empresas interesadas dispongan de toda tu registración.</li>
-              <li>Postúlate a los trabajos de tu interés sin ingresar al proceso de tus postulaciones.</li>
-              <li>Recuerda mantener tu información actualizada desde la sección de tu perfil.</li>
-            </ul>
-            <button class="mt-8 bg-pink-600 text-white px-8 py-4 rounded">Crear cuenta</button>
+        <div class="mt-16 flex justify-center space-x-8">
+          <a href="#" class="bg-white p-4 rounded shadow-md hover:shadow-lg transition">Jóvenes profesionales</a>
+          <a href="#" class="bg-white p-4 rounded shadow-md hover:shadow-lg transition">Puestos ejecutivos y directivos</a>
+        </div>
+        <div class="mt-16 text-center">
+          <h2 class="text-2xl font-bold text-zinc-800">Estas empresas necesitan tu talento</h2>
+          <div class="mt-8 flex justify-center space-x-8">
+            <img src="../assets/logoEmpe.png" style="width: 200px; height: 100px;" alt="Nippo" class="rounded shadow-md">
+            <img src="../assets/logoEmpe1.png" style="width: 200px; height: 100px;" alt="Multitrabajos" class="rounded shadow-md">
+            <img src="../assets/logoEmpe2.png" style="width: 200px; height: 100px;" alt="Sedem" class="rounded shadow-md">
+            <img src="../assets/logoEmpe3.png" style="width: 200px; height: 100px;" alt="Company 4" class="rounded shadow-md">
+            <img src="../assets/logoEmpe4.png" style="width: 200px; height: 100px;" alt="Company 5" class="rounded shadow-md">
           </div>
-          <div class="w-1/2">
-            <img src="https://placehold.co/400x400" alt="Create Account" class="rounded shadow-lg">
+          <button class="mt-8 bg-pink-600 text-white px-8 py-4 rounded">Ver todas las empresas</button>
+        </div>
+
+        <div class="mt-16 bg-white py-16">
+          <div class="container mx-auto flex justify-between items-center">
+            <div class="w-1/2">
+              <h3 class="text-2xl font-bold text-zinc-800">Créate una cuenta y encuentra el trabajo que buscas</h3>
+              <ul class="mt-4 space-y-2 text-zinc-600">
+                <li>Ingresa en la opción Crear cuenta, escribe tus datos y confirma.</li>
+                <li>Completa la información principal de tu perfil a través de los diferentes pasos para que las empresas interesadas dispongan de toda tu registración.</li>
+                <li>Postúlate a los trabajos de tu interés sin ingresar al proceso de tus postulaciones.</li>
+                <li>Recuerda mantener tu información actualizada desde la sección de tu perfil.</li>
+              </ul>
+              <br>
+              <router-link to="/register" class="mt-8 bg-pink-600 text-white px-8 py-4 rounded">Crear cuenta</router-link>
+            </div>
+            <div class="w-1/2">
+              <img src="https://placehold.co/400x400" alt="Create Account" class="rounded shadow-lg">
+            </div>
           </div>
         </div>
       </div>
@@ -71,17 +75,9 @@
           <div>
             <h4 class="font-bold">Provincia</h4>
             <ul class="mt-2 space-y-1">
-              <li>Provincia 1</li>
-              <li>Provincia 2</li>
-              <li>Provincia 3</li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="font-bold">Área</h4>
-            <ul class="mt-2 space-y-1">
-              <li>Área 1</li>
-              <li>Área 2</li>
-              <li>Área 3</li>
+              <li>Pichincha</li>
+              <li>Esmeraldas</li>
+              <li>Manabi</li>
             </ul>
           </div>
           <div>
@@ -113,19 +109,33 @@
     </footer>
   </div>
 </template>
+
 <script>
-// Asegúrate de importar Vue y el componente de Vue Router adecuadamente
 import { defineComponent } from 'vue';
-import { RouterLink } from 'vue-router';
+import axios from 'axios';
 
 export default defineComponent({
-  components: {
-    RouterLink // Asegúrate de incluir RouterLink como componente
+  name: 'HomePage', // Nombre del componente modificado
+  data() {
+    return {
+      provincias: []
+    };
   },
-  // Otro código de tu componente
+  mounted() {
+    this.obtenerProvincias();
+  },
+  methods: {
+    async obtenerProvincias() {
+      try {
+        const response = await axios.get('http://172.24.0.11:5046/api/provincias'); // Reemplaza con tu URL real
+        this.provincias = response.data; // Ajusta según la estructura de tu respuesta
+      } catch (error) {
+        console.error('Error al obtener las provincias:', error);
+      }
+    }
+  }
 });
 </script>
-
 
 <style scoped>
 :root {

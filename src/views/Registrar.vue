@@ -4,14 +4,6 @@
       <h1 class="text-2xl font-bold text-primary mb-6">Crea tu cuenta y encuentra tu empleo ideal</h1>
       <div class="flex flex-col md:flex-row items-center justify-center w-full max-w-4xl bg-card shadow-lg rounded-lg overflow-hidden">
         <div class="w-full md:w-1/2 p-8">
-          <button class="w-full bg-blue-500 text-white py-2 px-4 rounded-md mb-4 flex items-center justify-center hover:bg-blue-600 transition duration-300">
-            <img src="https://placehold.co/20x20?text=G" alt="Google logo" class="mr-2">
-            Iniciar sesión con Google
-          </button>
-          <button class="w-full bg-blue-700 text-white py-2 px-4 rounded-md mb-4 flex items-center justify-center hover:bg-blue-800 transition duration-300">
-            <img src="https://placehold.co/20x20?text=In" alt="LinkedIn logo" class="mr-2">
-            Acceder con LinkedIn
-          </button>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <input type="text" placeholder="Ingresa tu nombre" class="w-full p-2 border border-border rounded-md focus:ring-2 focus:ring-primary focus:outline-none" />
             <input type="text" placeholder="Ingresa tu apellido" class="w-full p-2 border border-border rounded-md focus:ring-2 focus:ring-primary focus:outline-none" />
@@ -41,20 +33,6 @@
             </div>
           </div>
           <p class="text-sm text-destructive mb-4">* Campos obligatorios</p>
-          <div class="flex flex-col space-y-2 mb-4">
-            <label class="flex items-center">
-              <input type="checkbox" class="mr-2 focus:ring-primary">
-              Acepto las <a href="#" class="text-primary underline">Condiciones de uso</a> de Multitrabajos.
-            </label>
-            <label class="flex items-center">
-              <input type="checkbox" class="mr-2 focus:ring-primary">
-              He leído y comprendo la <a href="#" class="text-primary underline">Política de protección de datos personales y privacidad</a> de Multitrabajos.
-            </label>
-            <label class="flex items-center">
-              <input type="checkbox" class="mr-2 focus:ring-primary">
-              Acepto recibir novedades, promociones y actualizaciones.
-            </label>
-          </div>
           <button class="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md mb-4 hover:bg-primary/80 transition duration-300">Crear cuenta</button>
           <p class="text-sm text-center">
             ¿Ya tienes cuenta? <a href="#" class="text-primary underline">Ingresa como candidato</a>
