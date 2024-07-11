@@ -9,7 +9,7 @@
         <a href="#" class="text-zinc-600">Puestos ejecutivos y directivos</a>
       </nav>
       <div class="space-x-4">
-        <a href="#" class="text-pink-600">Publicar gratis</a>
+        <router-link to="/login" class="text-pink-600">Iniciar Sesión</router-link>
         <router-link to="/register" class="bg-pink-600 text-white px-4 py-2 rounded">Crear cuenta</router-link>
       </div>
     </header>

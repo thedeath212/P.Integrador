@@ -1,22 +1,24 @@
 <template>
   <div id="Registrar"></div>
     <div class="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4">
-      <h1 class="text-2xl font-bold text-primary mb-6">Crea tu cuenta y encuentra tu empleo ideal</h1>
-      <div class="flex flex-col md:flex-row items-center justify-center w-full max-w-4xl bg-card shadow-lg rounded-lg overflow-hidden">
-        <div class="w-full md:w-1/2 p-8">
+      <div class="w-full max-w-4xl bg-card p-4 mb-6 bg-blue-100 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold text-primary">Crea tu cuenta y encuentra tu empleo ideal</h1>
+      </div>
+      <div class="flex flex-col md:flex-row items-center justify-center w-full max-w-4xl bg-blue-100 shadow-lg rounded-lg overflow-hidden">
+        <div class="w-full md:w-1/40 p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <input type="text" placeholder="Ingresa tu nombre" class="w-full p-2 border border-border rounded-md focus:ring-2 focus:ring-primary focus:outline-none" />
             <input type="text" placeholder="Ingresa tu apellido" class="w-full p-2 border border-border rounded-md focus:ring-2 focus:ring-primary focus:outline-none" />
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="flex">
-              <select class="w-1/3 p-2 border border-border rounded-l-md focus:ring-2 focus:ring-primary focus:outline-none">
+              <select class="w-1/2 p-2 border border-border rounded-l-md focus:ring-2 focus:ring-primary focus:outline-none">
                 <option>Tipo</option>
               </select>
               <input type="text" placeholder="Número" class="w-2/3 p-2 border border-border rounded-r-md focus:ring-2 focus:ring-primary focus:outline-none" />
             </div>
             <div class="flex">
-              <select class="w-1/3 p-2 border border-border rounded-l-md focus:ring-2 focus:ring-primary focus:outline-none">
+              <select class="w-1/2 p-2 border border-border rounded-l-md focus:ring-2 focus:ring-primary focus:outline-none">
                 <option>+593</option>
               </select>
               <input type="text" placeholder="Número" class="w-2/3 p-2 border border-border rounded-r-md focus:ring-2 focus:ring-primary focus:outline-none" />
@@ -33,13 +35,19 @@
             </div>
           </div>
           <p class="text-sm text-destructive mb-4">* Campos obligatorios</p>
-          <button class="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md mb-4 hover:bg-primary/80 transition duration-300">Crear cuenta</button>
+          <div class="flex flex-col items-center justify-center bg-background bg-red-400 text-foreground p-4 rounded-lg mx-auto my-auto text-center" style="width: 200px; height: 50px;">
+            <button class="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/80 transition duration-300">Crear cuenta</button>
+          </div>
+          <br>
           <p class="text-sm text-center">
-            ¿Ya tienes cuenta? <a href="#" class="text-primary underline">Ingresa como candidato</a>
+            ¿Ya tienes cuenta? <router-link to="/Login" href="#" class="text-primary underline">Ingresa como candidato</router-link>
+          </p>
+          <p class="mt-4 text-center">
+            <router-link to="/" href="#" class="text-destructive hover:text-destructive-foreground">Página Principal</router-link>
           </p>
         </div>
         <div class="hidden md:block w-1/2 p-4">
-          <img src="https://placehold.co/400x400" alt="Illustration of people working" class="w-full h-full object-cover rounded-md">
+          <img src="https://i.imgur.com/USxWmxX.jpeg" alt="Illustration of people working" class="w-full h-full object-cover rounded-md">
         </div>
       </div>
     </div>
