@@ -15,14 +15,6 @@
               <label class="block text-sm">Correo</label>
               <input v-model="filtroCorreo" @input="aplicarFiltro" type="text" placeholder="Buscar por Correo..." class="w-full mt-1 p-2 bg-zinc-700 text-zinc-100 border border-zinc-600 rounded">
             </div>
-            <div class="mt-2">
-              <label class="block text-sm">Activo</label>
-              <select v-model="filtroActivo" @change="aplicarFiltro" class="w-full mt-1 p-2 bg-zinc-700 text-zinc-100 border border-zinc-600 rounded">
-                <option value="">Seleccionar ...</option>
-                <option value="1">Activo</option>
-                <option value="2">Inactivo</option>
-              </select>
-            </div>
             <button @click="limpiarFiltros" class="w-full mt-4 p-2 bg-yellow-500 text-zinc-900 rounded">REESTABLECER</button>
           </div>
           <div class="px-4 py-2 mt-4">

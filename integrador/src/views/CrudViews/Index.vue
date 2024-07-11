@@ -39,7 +39,7 @@
               </router-link>
             </li>
             <li class="py-1">
-              <router-link to="/dashboard" class="flex items-center text-sm">
+              <router-link to="/Das" class="flex items-center text-sm">
                 <span class="mr-2">Dashboard</span>
               </router-link>
             </li>
@@ -61,14 +61,14 @@
           <thead class="bg-zinc-200 text-zinc-600">
             <tr>
               <th class="p-2">Acción</th>
-              <th class="p-2"> Id</th>
-              <th class="p-2">Nombre </th>
-              <th class="p-2">Apellido </th>
+              <th class="p-2">Id</th>
+              <th class="p-2">Nombre</th>
+              <th class="p-2">Apellido</th>
               <th class="p-2">Email</th>
-              <th class="p-2">Direccion</th>
-              <th class="p-2">Tipo</th>
-              <th class="p-2">Dni</th>
-              <th class="p-2">Fecha Nacimiento </th>
+              <th class="p-2">Dirección</th>
+              <th class="p-2">Tipo Documento</th>
+              <th class="p-2">DNI</th>
+              <th class="p-2">Fecha Nacimiento</th>
               <th class="p-2">Sexo</th>
               <th class="p-2">Estado</th>
               <th class="p-2">Rol</th>
@@ -77,21 +77,20 @@
             </tr>
           </thead>
           <tbody class="text-zinc-700">
-            <!-- Aquí puedes incluir datos dinámicos con Vue -->
             <tr class="border-b" v-for="(usuario, index) in usuariosFiltrados" :key="index">
               <td class="p-2 flex space-x-2">
                 <button class="bg-yellow-500 text-white p-1 rounded">✏️</button>
                 <button class="bg-red-500 text-white p-1 rounded">🗑️</button>
               </td>
-              <td class="p-2">{{ usuario.id }}</td>
+              <td class="p-2">{{ usuario.usuId }}</td>
               <td class="p-2">{{ usuario.usuNombres }}</td>
               <td class="p-2">{{ usuario.usuApellidos }}</td>
               <td class="p-2">{{ usuario.usuCorreo }}</td>
               <td class="p-2">{{ usuario.usuDireccion }}</td>
-              <td class="p-2">{{ usuario.usuTipoDni }}</td>
+              <td class="p-2">{{ obtenerTipoDocumento(usuario.usuTipoDni) }}</td>
               <td class="p-2">{{ usuario.usuDni }}</td>
               <td class="p-2">{{ usuario.usuFechaNacimiento }}</td>
-              <td class="p-2">{{ usuario.usuSexo }}</td>
+              <td class="p-2">{{ obtenerSexo(usuario.usuSexo) }}</td>
               <td class="p-2">{{ usuario.usuEstado }}</td>
               <td class="p-2">{{ usuario.usuRol }}</td>
               <td class="p-2">{{ usuario.usuUser }}</td>
@@ -127,7 +126,7 @@ export default {
   },
   methods: {
     fetchUsuarios() {
-      axios.get('http://172.24.0.11:5046/api/usuarios')
+      axios.get('http://172.24.0.11:5001/api/usuario')
         .then(response => {
           this.usuarios = response.data;
           this.usuariosFiltrados = response.data;
@@ -155,6 +154,24 @@ export default {
       this.filtroCorreo = '';
       this.filtroActivo = '';
       this.usuariosFiltrados = this.usuarios;
+    },
+    obtenerTipoDocumento(tipoDni) {
+      if (tipoDni == 1) {
+        return 'Cédula';
+      } else if (tipoDni == 2) {
+        return 'RUC';
+      } else {
+        return 'Desconocido';
+      }
+    },
+    obtenerSexo(sexo) {
+      if (sexo == 1) {
+        return 'Masculino';
+      } else if (sexo == 2) {
+        return 'Femenino';
+      } else {
+        return 'Desconocido';
+      }
     }
   }
 }
