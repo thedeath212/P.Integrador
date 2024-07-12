@@ -13,22 +13,13 @@
       <div class="w-full md:w-1/2 p-4">
         <h1 class="text-3xl font-bold text-blue-700 mb-2">Ingresa a tu cuenta</h1>
         <p class="text-muted-foreground mb-6">¡Hola! Accede y encuentra el trabajo que buscas</p>
-        <div class="flex flex-col space-y-4 mb-6">
-          <button class="flex items-center justify-center w-full p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-            <img src="../assets/google.png" alt="Google icon" class="mr-2" style="width: 50px; height: 30px;">
-            Iniciar sesión con Google
-          </button>
-          <button class="flex items-center justify-center w-full p-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800">
-            <img src="https://placehold.co/24x24?text=in" alt="LinkedIn icon" class="mr-2" />
-            Acceder con LinkedIn
-          </button>
-        </div>
-        
-        <form class="space-y-4" @submit.prevent="handleSubmit">
+
+        <!-- Formulario de inicio de sesión -->
+        <form class="space-y-4" @submit.prevent="handleSubmit" autocomplete="off">
           <div>
             <label for="email" class="sr-only">Email</label>
             <div class="relative">
-              <input type="email" id="email" v-model="correo" class="w-full p-2 pl-10 border border-input rounded-lg" placeholder="Ingresa tu email" />
+              <input type="email" id="email" v-model="correo" class="w-full p-2 pl-10 border border-input rounded-lg" placeholder="Ingresa tu email" required />
               <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <img aria-hidden="true" alt="email-icon" src="https://openui.fly.dev/openui/24x24.svg?text=📧" />
               </span>
@@ -38,60 +29,73 @@
           <div>
             <label for="password" class="sr-only">Contraseña</label>
             <div class="relative">
-              <input type="password" id="password" v-model="clave" class="w-full p-2 pl-10 border border-input rounded-lg" placeholder="Ingresá tu contraseña" />
+              <input :type="passwordVisible ? 'text' : 'password'" id="password" v-model="clave" class="w-full p-2 pl-10 border border-input rounded-lg" placeholder="Ingresá tu contraseña" required />
               <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <img aria-hidden="true" alt="password-icon" src="https://openui.fly.dev/openui/24x24.svg?text=🔒" />
               </span>
               <button type="button" @click="togglePasswordVisibility" class="absolute inset-y-0 right-0 flex items-center pr-3">
-                <img aria-hidden="true" alt="show-password-icon" src="https://openui.fly.dev/openui/24x24.svg?text=👁️" />
+                <img aria-hidden="true" alt="show-password-icon" :src="passwordVisible ? 'https://openui.fly.dev/openui/24x24.svg?text=🙈' : 'https://openui.fly.dev/openui/24x24.svg?text=👁️'" />
               </button>
             </div>
           </div>
-          
+          <p v-if="showEmptyFieldsError" class="text-red-500">Por favor completa todos los campos.</p>
+
           <div class="flex justify-between items-center">
             <a href="#" class="text-pink-600 hover:underline">Olvidé mi contraseña</a>
           </div>
-          
           <button type="submit" class="w-full p-2 bg-zinc-500 text-white rounded-lg hover:bg-zinc-600">Ingresar</button>
         </form>
-        
         <p class="mt-4 text-center text-muted-foreground">
           <router-link to="/register" class="text-pink-600 hover:underline">Regístrate como candidato</router-link>
         </p>
       </div>
       <div class="hidden md:block w-1/2 p-4">
-        <img src="../assets/login_img.png" alt="Illustration of a person with a resume" />
+        <img src="../assets/login_img.png" alt="Ilustración de una persona con un currículum" />
       </div>
     </main>
-
-    <!-- Alerta de éxito -->
-    <AppAlert v-if="successAlert" :message="successMessage" type="success" />
-
-    <!-- Alerta de error -->
-    <AppAlert v-if="errorAlert" :message="errorMessage" type="error" />
+    <transition name="fade">
+      <div v-if="showSuccessAlert" class="alert-container">
+        <AppAlert type="success" :message="successMessage" />
+      </div>
+    </transition>
+    <transition name="fade">
+      <div v-if="showErrorAlert" class="alert-container">
+        <AppAlert type="error" :message="errorMessage" />
+      </div>
+    </transition>
   </div>
 </template>
+
 <script>
-import AppAlert from '../components/Alert.vue'; // Importa el componente Alert
+import AppAlert from '../components/Alert.vue';
 
 export default {
   name: 'LoginPage',
   components: {
-    AppAlert // Registra el componente AppAlert
+    AppAlert
   },
   data() {
     return {
       correo: '',
       clave: '',
       passwordVisible: false,
-      successAlert: false,
-      errorAlert: false,
+      showEmptyFieldsError: false,
+      showSuccessAlert: false,
+      showErrorAlert: false,
       successMessage: '',
       errorMessage: ''
     };
   },
   methods: {
     async handleSubmit() {
+      // Validación de campos vacíos
+      if (!this.correo || !this.clave) {
+        this.showEmptyFieldsError = true;
+        return;
+      } else {
+        this.showEmptyFieldsError = false;
+      }
+
       try {
         const response = await fetch('http://172.24.0.11:5001/api/usuario/login', {
           method: 'POST',
@@ -108,48 +112,67 @@ export default {
           throw new Error('Credenciales inválidas');
         }
 
-        const userData = await response.json();
-        console.log('userData:', userData); 
+        let userData = null;
+        try {
+          userData = await response.json();
+        } catch (error) {
+          throw new Error(' Credenciales incorrectas ');
+        }
+
         const { usuCorreo, usuClave, usuRol } = userData;
+
+        // Verificar las credenciales y el rol del usuario
         if (this.correo === usuCorreo && this.clave === usuClave) {
           if (usuRol === 1) {
             this.successMessage = 'Inicio de sesión exitoso como administrador';
-            this.successAlert = true;
+            this.showSuccessAlert = true;
             setTimeout(() => {
+              this.showSuccessAlert = false;
               this.$router.push('/dashboard');
             }, 1000);
           } else if (usuRol === 2) {
             this.successMessage = 'Inicio de sesión exitoso como usuario';
-            this.successAlert = true;
+            this.showSuccessAlert = true;
             setTimeout(() => {
+              this.showSuccessAlert = false;
               this.$router.push('/user');
             }, 1000);
           } else {
             throw new Error('Rol de usuario desconocido');
           }
         } else {
-          throw new Error('Credenciales inválidas');
+          throw new Error('Credenciales incorrectas');
         }
       } catch (error) {
         console.error('Error al iniciar sesión:', error.message);
-        this.errorMessage = 'Credenciales inválidas';
-        this.errorAlert = true;
+        this.errorMessage = error.message;
+        this.showErrorAlert = true;
+        setTimeout(() => {
+          this.showErrorAlert = false;
+        }, 3000); // Cerrar la alerta de error después de 3 segundos
       }
     },
     togglePasswordVisibility() {
       this.passwordVisible = !this.passwordVisible;
-    },
+    }
   }
 };
 </script>
 
 
 <style scoped>
-/* Estilos específicos del componente */
-.AppAlert {
+.alert-container {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 20px; /* Ajusta según sea necesario */
+  right: 20px; /* Ajusta según sea necesario */
   z-index: 9999;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 </style>

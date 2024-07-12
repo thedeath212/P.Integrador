@@ -10,8 +10,10 @@
       <div class="flex space-x-4">
         <a href="#" class="text-zinc-600 hover:text-zinc-800 hidden md:block">Cuenta empresa</a>
         <a href="#" class="text-pink-600 hover:text-pink-800">Publicar gratis</a>
-        <router-link to="/register" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Crear cuenta</router-link>
-        <router-link to="/login" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Ingresar</router-link>
+        <router-link to="/register" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Crear
+          cuenta</router-link>
+        <router-link to="/login"
+          class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Ingresar</router-link>
       </div>
       <button class="md:hidden block">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -99,8 +101,14 @@
             <li>Postúlate a los trabajos que más te interesen y sigue el proceso de tus postulaciones.</li>
             <li>Recuerda mantener tu información actualizada desde la sección de tu perfil.</li>
           </ul>
-          <button class="mt-4 bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Crear cuenta</button>
+          <br>
+          <br>
+          <router-link to="/register"
+            class="mt-4 block text-center bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">
+            Crear cuenta
+          </router-link>
         </div>
+
         <div class="md:w-1/2 p-4">
           <img src="https://placehold.co/400x400?text=Ilustración" alt="Ilustración de creación de cuenta"
             class="rounded-lg shadow-lg w-full">
