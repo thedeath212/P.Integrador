@@ -11,6 +11,10 @@ import DashboardPage from './views/CrudViews/Dashboard.vue';
 import EditarPage from './views/FuncionCrud/EditarU.vue';
 import CrearPage from './views/FuncionCrud/Crear.vue';
 import auth from './auth';
+import LoginEmp from './views/LoginEmp.vue';
+import Rempresas from './views/Rempresas.vue';
+import DashboardEmpresa from './views/DashboardEmpresa.vue';
+
 
 const routes = [
   {
@@ -70,7 +74,23 @@ const routes = [
     name: 'CrearPage',
     component: CrearPage,
     meta: { requiresAuth: true }
+  },
+  {
+    path: "/logemp",
+    name: "LoginEmpresa",
+    component: LoginEmp
+  },
+  {
+    path: '/rempresas',
+    name: 'RegistroEmpresa',
+    component: Rempresas
+  },
+  {
+    path: '/dashempresas',
+    name: 'DashEmpresas',
+    component: DashboardEmpresa
   }
+
 ];
 
 const router = createRouter({
