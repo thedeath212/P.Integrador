@@ -5,8 +5,8 @@
       <router-link to="/" class="text-xl p-2">
         <img aria-hidden="true" alt="back-arrow" src="https://openui.fly.dev/openui/24x24.svg?text=←" class="h-6 w-6 md:h-8 md:w-8" />
       </router-link>
-      <img src="https://placehold.co/100x24?text=multitrabajos" alt="multitrabajos logo" class="h-6 ml-4" />
-      <a href="#" class="text-pink-600 hover:underline ml-auto">Ingresa como empresa</a>
+      <img src="https://i.imgur.com/RCpUHKA.png" alt="multitrabajos logo" class="h-10 ml-2" />
+      <router-link to="/rempresas" href="#" class="text-pink-600 hover:underline ml-auto">Registra como empresa</router-link>
     </header>
 
     <!-- Main content - Formulario de Registro -->

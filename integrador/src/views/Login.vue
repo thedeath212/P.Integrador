@@ -6,8 +6,8 @@
           <img aria-hidden="true" alt="back-arrow" src="https://openui.fly.dev/openui/24x24.svg?text=←" class="h-6 w-6 md:h-8 md:w-8" />
         </router-link>
       </button>
-      <img src="https://placehold.co/100x24?text=multitrabajos" alt="multitrabajos logo" class="h-6 ml-4" />
-      <a href="#" class="text-pink-600 hover:underline ml-auto">Ingresa como empresa</a>
+      <img src="https://i.imgur.com/RCpUHKA.png" alt="multitrabajos logo" class="h-10 ml-2" />
+      <router-link to="/logemp" href="#" class="text-pink-600 hover:underline ml-auto">Ingresa como empresa</router-link>
     </header>
     <main class="flex flex-col md:flex-row items-center justify-center w-full max-w-6xl mt-8 p-4">
       <div class="w-full md:w-1/2 p-4">

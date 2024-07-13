@@ -8,6 +8,9 @@ import Usuario from './views/Usuario.vue';
 import EmpresasList from './views/CrudViews/Empresas.vue';
 import PublicacionesList from './views/CrudViews/Publicaciones.vue';
 import DashboardPage from './views/CrudViews/Dashboard.vue';
+import LoginEmp from './views/LoginEmp.vue';
+import Rempresas from './views/Rempresas.vue';
+import DashboardEmpresa from './views/DashboardEmpresa.vue';
 
 const routes = [
   {
@@ -52,6 +55,21 @@ const routes = [
     path: '/dashboard',
     name: 'DashboardPage',
     component: DashboardPage
+  },
+  {
+    path: "/logemp",
+    name: "LoginEmpresa",
+    component: LoginEmp
+  },
+  {
+    path: '/rempresas',
+    name: 'RegistroEmpresa',
+    component: Rempresas
+  },
+  {
+    path: '/dashempresas',
+    name: 'DashEmpresas',
+    component: DashboardEmpresa
   }
 ];
 

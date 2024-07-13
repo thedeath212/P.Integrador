@@ -1,7 +1,7 @@
 <template>
   <div class="bg-gradient-to-r from-pink-200 via-purple-200 to-blue-200 min-h-screen">
     <header class="flex justify-between items-center p-4 bg-white shadow">
-      <img src="https://placehold.co/150x50?text=multitrabajos" alt="multitrabajos logo" class="h-10">
+      <img src="https://i.imgur.com/RCpUHKA.png" alt="multitrabajos logo" class="h-10">
       <nav class="hidden md:flex space-x-4">
         <a href="#" class="text-zinc-600 hover:text-zinc-800">Buscar empresas</a>
         <a href="#" class="text-zinc-600 hover:text-zinc-800">Jóvenes profesionales</a>
@@ -46,7 +46,7 @@
           </div>
         </div>
         <div class="md:w-1/2 p-4">
-          <img src="https://placehold.co/400x400?text=POSTÚLATE" alt="Postúlate" class="rounded-lg shadow-lg w-full">
+          <img src="https://i.imgur.com/OgzRdOH.png" alt="Postúlate" class="rounded-lg shadow-lg w-full">
         </div>
       </div>
     </main>
@@ -110,7 +110,7 @@
         </div>
 
         <div class="md:w-1/2 p-4">
-          <img src="https://placehold.co/400x400?text=Ilustración" alt="Ilustración de creación de cuenta"
+          <img src="https://i.imgur.com/2EU6BDn.png" alt="Ilustración de creación de cuenta"
             class="rounded-lg shadow-lg w-full">
         </div>
       </div>
