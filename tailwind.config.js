@@ -17,4 +17,9 @@ module.exports = {
     components: true, // Componentes
     utilities: true, // Utilidades
   },
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+
 }

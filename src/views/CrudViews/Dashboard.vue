@@ -1,7 +1,6 @@
 <template>
-  <div class="flex h-screen bg-gray-100">
-    <!-- Panel lateral izquierdo -->
-    <div class="w-64 bg-gray-800 text-white flex flex-col">
+  <div class="flex h-screen bg-zinc-100">
+    <div class="w-64 bg-zinc-800 text-white flex flex-col">
       <div class="p-4">
         <h1 class="text-2xl font-bold">Admin Panel</h1>
       </div>
@@ -11,15 +10,15 @@
           <div class="mt-4">
             <label class="block text-sm">Apellido</label>
             <input v-model="filtroApellido" type="text"
-              class="w-full mt-1 p-2 bg-gray-700 border border-gray-600 rounded">
+              class="w-full mt-1 p-2 bg-zinc-700 border border-zinc-600 rounded">
           </div>
           <div class="mt-4">
             <label class="block text-sm">Email</label>
-            <input v-model="filtroEmail" type="text" class="w-full mt-1 p-2 bg-gray-700 border border-gray-600 rounded">
+            <input v-model="filtroEmail" type="text" class="w-full mt-1 p-2 bg-zinc-700 border border-zinc-600 rounded">
           </div>
           <div class="mt-4">
             <label class="block text-sm">Estado</label>
-            <select v-model="filtroActivo" class="w-full mt-1 p-2 bg-gray-700 border border-gray-600 rounded">
+            <select v-model="filtroActivo" class="w-full mt-1 p-2 bg-zinc-700 border border-zinc-600 rounded">
               <option value="">Seleccionar ...</option>
               <option value="A">Activo</option>
               <option value="I">Inactivo</option>
@@ -29,71 +28,35 @@
             <button @click="limpiarFiltros" class="bg-yellow-500 text-white py-2 px-4 rounded">Limpiar</button>
           </div>
           <div class="mt-4">
-            <!-- Enlaces a otras secciones -->
             <router-link to="/empresas" class="text-white">Empresas</router-link>
             <br>
             <br>
             <router-link to="/publicaciones" class="text-white">Publicaciones</router-link>
             <br>
             <br>
-            <router-link to="/dashboard" class="text-white">Dashboard</router-link>
+            <router-link to="/usuarios" class="text-white">Usuarios</router-link>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Contenido principal -->
     <div class="flex-grow flex flex-col">
-      <div class="bg-gray-200 p-4 flex justify-between items-center">
+      <div class="bg-zinc-200 p-4 flex justify-between items-center">
         <div>
-          <h1 class="text-xl font-bold">UsuariosList</h1>
+          <h1 class="text-xl font-bold">Panel de administración</h1>
         </div>
       </div>
       <div class="bg-white p-4 flex justify-between items-center">
         <div class="flex space-x-2">
-          <router-link to="/crear" class="bg-blue-500 text-white py-2 px-4 rounded">AGREGAR NUEVO</router-link>
+          <button class="bg-blue-500 text-white py-2 px-4 rounded">AGREGAR NUEVO</button>
         </div>
       </div>
       <div class="flex-grow overflow-auto">
         <table class="min-w-full bg-white">
           <thead>
-            <tr class="w-full bg-gray-200 text-left text-sm uppercase">
-              <th class="py-2 px-4">Acción</th>
-              <th class="py-2 px-4">ID</th>
-              <th class="py-2 px-4">Nombres</th>
-              <th class="py-2 px-4">Apellidos</th>
-              <th class="py-2 px-4">Tipo de DNI</th>
-              <th class="py-2 px-4">Número de DNI/RUC</th>
-              <th class="py-2 px-4">Correo Electrónico</th>
-              <th class="py-2 px-4">Teléfono</th>
-              <th class="py-2 px-4">Dirección</th>
-              <th class="py-2 px-4">Sexo</th>
-              <th class="py-2 px-4">Fecha de Nacimiento</th>
-              <th class="py-2 px-4">Profesión</th>
-              <th class="py-2 px-4">Rol</th>
-              <th class="py-2 px-4">Estado</th>
-            </tr>
+          
           </thead>
           <tbody class="text-sm">
             <tr v-for="usuario in usuariosFiltrados" :key="usuario.usuId" class="border-b">
-              <td class="py-2 px-4 flex space-x-2">
-                <router-link :to="'/editar-usuario/' + usuario.usuId"
-                  class="bg-yellow-500 text-white p-2 rounded">✏️</router-link>
-                <button @click="eliminarUsuario(usuario.usuId)" class="bg-red-500 text-white p-2 rounded">🗑️</button>
-              </td>
-              <td class="py-2 px-4">{{ usuario.usuId }}</td>
-              <td class="py-2 px-4">{{ usuario.usuNombres }}</td>
-              <td class="py-2 px-4">{{ usuario.usuApellidos }}</td>
-              <td class="py-2 px-4">{{ obtenerTipoDni(usuario.usuTipoDni) }}</td>
-              <td class="py-2 px-4">{{ usuario.usuDni }}</td>
-              <td class="py-2 px-4">{{ usuario.usuCorreo }}</td>
-              <td class="py-2 px-4">{{ usuario.usuTelefono }}</td>
-              <td class="py-2 px-4">{{ usuario.usuDireccion }}</td>
-              <td class="py-2 px-4">{{ obtenerSexo(usuario.usuSexo) }}</td>
-              <td class="py-2 px-4">{{ usuario.usuFechaNacimiento }}</td>
-              <td class="py-2 px-4">{{ usuario.usuProfesion }}</td>
-              <td class="py-2 px-4">{{ usuario.usuRol }}</td>
-              <td class="py-2 px-4">{{ usuario.usuEstado === 'A' ? '✔️' : '❌' }}</td>
             </tr>
           </tbody>
         </table>
@@ -143,6 +106,7 @@ export default {
       return usuariosFiltrados;
     }
   },
+
   methods: {
     async fetchUsuarios() {
       try {
@@ -152,18 +116,28 @@ export default {
         console.error('Error al cargar los datos:', error);
       }
     },
-    async eliminarUsuario(usuId) {
+    async filtrarUsuarios() {
       try {
-        await axios.post(`http://localhost:5001/api/usuario/${usuId}`);
-        this.usuarios = this.usuarios.filter(usuario => usuario.usuId !== usuId);
+        const response = await axios.get('http://172.24.0.11:5001/api/usuario', {
+          params: {
+            apellido: this.filtroApellido,
+            email: this.filtroEmail,
+            estado: this.filtroActivo
+          }
+        });
+        this.usuarios = response.data;
       } catch (error) {
-        console.error('Error al eliminar el usuario:', error);
+        console.error('Error al filtrar usuarios:', error);
       }
     },
     limpiarFiltros() {
       this.filtroApellido = '';
       this.filtroEmail = '';
       this.filtroActivo = '';
+      this.fetchUsuarios(); // Fetch all users again to reset filters
+    },
+    formatFecha(fecha) {
+      return fecha ? new Date(fecha).toLocaleString() : '';
     },
     obtenerTipoDni(tipoDni) {
       const tipos = {
@@ -179,6 +153,6 @@ export default {
 };
 </script>
 
-<style scoped>
-/* Estilos específicos del componente */
+<style>
+/* Add your custom styles here */
 </style>
