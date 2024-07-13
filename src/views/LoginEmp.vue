@@ -14,16 +14,6 @@
         <h1 class="text-3xl font-bold text-blue-700 mb-2">Ingresa a tu cuenta como empresa</h1>
         <p class="text-muted-foreground mb-6">¡Hola! Accede como empresa y gestiona tus vacantes</p>
 
-        <div class="flex flex-col space-y-2 mb-4">
-          <!--<button class="bg-blue-500 text-white p-2 rounded-lg flex items-center justify-center">
-            <img aria-hidden="true" alt="google-icon" src="https://openui.fly.dev/openui/24x24.svg?text=G" class="mr-2" />
-            Iniciar sesión con Google
-          </button>
-          <button class="bg-blue-700 text-white p-2 rounded-lg flex items-center justify-center">
-            <img aria-hidden="true" alt="linkedin-icon" src="https://openui.fly.dev/openui/24x24.svg?text=in" class="mr-2" />
-            Acceder con Linkedin
-          </button>-->
-        </div>
 
         <form class="space-y-4" @submit.prevent="handleSubmit">
           <div>

@@ -46,7 +46,7 @@
           </div>
         </div>
         <div class="md:w-1/2 p-4">
-          <img src="https://placehold.co/400x400?text=POSTÚLATE" alt="Postúlate" class="rounded-lg shadow-lg w-full">
+          <img src="../assets/bienvenido.jpg" alt="Postúlate" class="rounded-lg shadow-lg w-full">
         </div>
       </div>
     </main>
@@ -110,7 +110,7 @@
         </div>
 
         <div class="md:w-1/2 p-4">
-          <img src="https://placehold.co/400x400?text=Ilustración" alt="Ilustración de creación de cuenta"
+          <img src="../assets/formulario.jpg" alt="Ilustración de creación de cuenta"
             class="rounded-lg shadow-lg w-full">
         </div>
       </div>

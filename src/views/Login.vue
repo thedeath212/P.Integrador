@@ -3,11 +3,12 @@
     <header class="w-full flex justify-start items-center p-4 bg-white shadow-md">
       <button class="text-xl p-2">
         <router-link to="/" class="text-xl p-2">
-          <img aria-hidden="true" alt="back-arrow" src="https://openui.fly.dev/openui/24x24.svg?text=←" class="h-6 w-6 md:h-8 md:w-8" />
+          <img aria-hidden="true" alt="back-arrow" src="https://openui.fly.dev/openui/24x24.svg?text=←"
+            class="h-6 w-6 md:h-8 md:w-8" />
         </router-link>
       </button>
-      <img src="https://placehold.co/100x24?text=multitrabajos" alt="multitrabajos logo" class="h-6 ml-4" />
-      <a href="#" class="text-pink-600 hover:underline ml-auto">Ingresa como empresa</a>
+      <img src="../assets/MultiEmpleo.png" alt="multitrabajos logo" class="h-6 ml-4" />
+      <router-link to="/logemp" class="text-pink-600 hover:underline ml-auto">Ingresa como empresa</router-link>
     </header>
     <main class="flex flex-col md:flex-row items-center justify-center w-full max-w-6xl mt-8 p-4">
       <div class="w-full md:w-1/2 p-4">
@@ -19,22 +20,26 @@
           <div>
             <label for="email" class="sr-only">Email</label>
             <div class="relative">
-              <input type="email" id="email" v-model="correo" class="w-full p-2 pl-10 border border-input rounded-lg" placeholder="Ingresa tu email" required />
+              <input type="email" id="email" v-model="correo" class="w-full p-2 pl-10 border border-input rounded-lg"
+                placeholder="Ingresa tu email" required />
               <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <img aria-hidden="true" alt="email-icon" src="https://openui.fly.dev/openui/24x24.svg?text=📧" />
               </span>
             </div>
           </div>
-          
+
           <div>
             <label for="password" class="sr-only">Contraseña</label>
             <div class="relative">
-              <input :type="passwordVisible ? 'text' : 'password'" id="password" v-model="clave" class="w-full p-2 pl-10 border border-input rounded-lg" placeholder="Ingresá tu contraseña" required />
+              <input :type="passwordVisible ? 'text' : 'password'" id="password" v-model="clave"
+                class="w-full p-2 pl-10 border border-input rounded-lg" placeholder="Ingresá tu contraseña" required />
               <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <img aria-hidden="true" alt="password-icon" src="https://openui.fly.dev/openui/24x24.svg?text=🔒" />
               </span>
-              <button type="button" @click="togglePasswordVisibility" class="absolute inset-y-0 right-0 flex items-center pr-3">
-                <img aria-hidden="true" alt="show-password-icon" :src="passwordVisible ? 'https://openui.fly.dev/openui/24x24.svg?text=🙈' : 'https://openui.fly.dev/openui/24x24.svg?text=👁️'" />
+              <button type="button" @click="togglePasswordVisibility"
+                class="absolute inset-y-0 right-0 flex items-center pr-3">
+                <img aria-hidden="true" alt="show-password-icon"
+                  :src="passwordVisible ? 'https://openui.fly.dev/openui/24x24.svg?text=🙈' : 'https://openui.fly.dev/openui/24x24.svg?text=👁️'" />
               </button>
             </div>
           </div>
@@ -65,6 +70,7 @@
     </transition>
   </div>
 </template>
+
 <script>
 import AppAlert from '../components/Alert.vue';
 
@@ -85,7 +91,20 @@ export default {
       errorMessage: ''
     };
   },
+  created() {
+    // Agregar listener para el evento beforeunload
+    window.addEventListener('beforeunload', this.handleBeforeUnload);
+  },
+  beforeUnmount() {
+    // Remover listener para el evento beforeunload
+    window.removeEventListener('beforeunload', this.handleBeforeUnload);
+  },
   methods: {
+    handleBeforeUnload() {
+      // Limpiar localStorage y sessionStorage
+      localStorage.clear();
+      sessionStorage.clear();
+    },
     async handleSubmit() {
       if (!this.correo || !this.clave) {
         this.showEmptyFieldsError = true;
@@ -151,20 +170,21 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .alert-container {
   position: fixed;
-  top: 20px; /* Ajusta según sea necesario */
-  right: 20px; /* Ajusta según sea necesario */
+  top: 20px;
+  right: 20px;
   z-index: 9999;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.5s;
 }
 
-.fade-enter, .fade-leave-to {
+.fade-enter,
+.fade-leave-to {
   opacity: 0;
 }
 </style>
