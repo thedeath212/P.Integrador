@@ -1,111 +1,284 @@
 <template>
-  <div id="Registrar" class="min-h-screen flex flex-col items-center justify-start bg-background text-foreground">
+  <div id="Registrar" class="min-h-screen flex flex-col items-center justify-start bg-gray-100 text-gray-800">
     <!-- Header -->
     <header class="w-full flex justify-start items-center p-4 bg-white shadow-md">
-      <router-link to="/" class="text-xl p-2">
-        <img aria-hidden="true" alt="back-arrow" src="https://openui.fly.dev/openui/24x24.svg?text=←" class="h-6 w-6 md:h-8 md:w-8" />
+      <router-link to="/login" class="text-xl p-2">
+        <img aria-hidden="true" alt="back-arrow" src="https://openui.fly.dev/openui/24x24.svg?text=←"
+          class="h-6 w-6 md:h-8 md:w-8" />
       </router-link>
-      <img src="https://placehold.co/100x24?text=multitrabajos" alt="multitrabajos logo" class="h-6 ml-4" />
-      <a href="#" class="text-pink-600 hover:underline ml-auto">Ingresa como empresa</a>
+      <img src="../assets/MultiEmpleo.png" alt="multitrabajos logo" class="h-6 ml-4" />
+      <router-link to="/logemp" class="text-pink-600 hover:underline ml-auto">Ingresa como empresa</router-link>
     </header>
 
-    <!-- Main content - Formulario de Registro -->
-    <div class="flex flex-col md:flex-row items-center justify-center w-full max-w-4xl bg-blue-100 shadow-lg rounded-lg overflow-hidden mt-8">
-      <div class="w-full md:w-1/2 p-6 flex flex-col items-center justify-center">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <input type="text" placeholder="Ingresa tu nombre" class="w-full p-2 border border-border rounded-md focus:ring-2 focus:ring-primary focus:outline-none" />
-          <input type="text" placeholder="Ingresa tu apellido" class="w-full p-2 border border-border rounded-md focus:ring-2 focus:ring-primary focus:outline-none" />
+    <!-- Contenido principal -->
+    <div class="flex flex-col md:flex-row bg-white shadow-lg rounded-lg mt-4">
+      <!-- Sección izquierda (Imagen de perfil) -->
+      <div class="w-full md:w-1/3 p-4 border-r border-gray-200 flex flex-col items-center justify-center">
+        <div class="flex justify-center items-center mb-4">
+          <img src="../assets/registro_img.jpg" alt="Profile Image" class="rounded-full w-40 h-40 object-cover" />
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div class="flex">
-            <select class="w-1/2 p-2 border border-border rounded-l-md focus:ring-2 focus:ring-primary focus:outline-none">
-              <option>Tipo</option>
-            </select>
-            <input type="text" placeholder="Número" class="w-2/3 p-2 border border-border rounded-r-md focus:ring-2 focus:ring-primary focus:outline-none" />
-          </div>
-          <div class="flex">
-            <select class="w-1/2 p-2 border border-border rounded-l-md focus:ring-2 focus:ring-primary focus:outline-none">
-              <option>+593</option>
-            </select>
-            <input type="text" placeholder="Número" class="w-2/3 p-2 border border-border rounded-r-md focus:ring-2 focus:ring-primary focus:outline-none" />
-          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div class="relative">
-            <input type="email" placeholder="Ingresa tu email" class="w-full p-2 border border-border rounded-md focus:ring-2 focus:ring-primary focus:outline-none" />
-            <img src="https://placehold.co/20x20?text=@" alt="Email icon" class="absolute right-2 top-2" />
-          </div>
-          <div class="relative">
-            <input type="password" placeholder="Ingresa tu contraseña" class="w-full p-2 border border-border rounded-md focus:ring-2 focus:ring-primary focus:outline-none" />
-            <img src="https://placehold.co/20x20?text=🔒" alt="Password icon" class="absolute right-2 top-2" />
-          </div>
-        </div>
-        <p class="text-sm text-destructive mb-4">* Campos obligatorios</p>
-        <div class="flex flex-col items-center justify-center bg-background bg-red-400 text-foreground p-4 rounded-lg mx-auto my-auto text-center" style="width: 200px; height: 50px;">
-          <button class="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/80 transition duration-300">Crear cuenta</button>
-        </div>
-        <br>
-        <p class="text-sm text-center">
-          ¿Ya tienes cuenta? <router-link to="/Login" href="#" class="text-primary underline">Ingresa como candidato</router-link>
-        </p>
       </div>
-      <div class="hidden md:block w-1/2 p-4">
-        <img src="https://i.imgur.com/USxWmxX.jpeg" alt="Illustration of people working" class="w-full h-full object-cover rounded-md">
+
+
+      <!-- Sección derecha (Formulario) -->
+      <div class="w-full md:w-2/3 p-4">
+        <h2 class="text-xl font-semibold mb-4">Registrate como candidato</h2>
+        <form @submit.prevent="guardarInformacion">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Campos del formulario -->
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Nombres</label>
+              <input type="text" v-model="usuNombres" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ ]+" title="Solo letras y espacios"
+                required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Apellidos</label>
+              <input type="text" v-model="usuApellidos" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ ]+" title="Solo letras y espacios"
+                required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Tipo de Documento</label>
+              <select v-model="usuTipoDni" required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                <option value="" disabled selected>Seleccione</option>
+                <option value="1">Cédula</option>
+                <option value="2">RUC</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Número de Documento</label>
+              <input type="text" v-model="usuDni" pattern="[0-9]{10}" title="Debe contener 10 dígitos numéricos"
+                required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Correo Electrónico</label>
+              <input type="email" v-model="usuCorreo" required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Teléfono</label>
+              <input type="tel" v-model="usuTelefono" pattern="[0-9]+" title="Solo números" required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Dirección</label>
+              <input type="text" v-model="usuDireccion" required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Sexo</label>
+              <select v-model="usuSexo" required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                <option value="" disabled selected>Seleccione</option>
+                <option value="1">Masculino</option>
+                <option value="2">Femenino</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Fecha de Nacimiento</label>
+              <input type="date" v-model="usuFechaNacimiento" :max="maxDate" required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Profesión</label>
+              <input type="text" v-model="usuProfesion" required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" />
+            </div>
+            <!-- El campo de rol está oculto y se envía automáticamente como rol 2 -->
+            <div style="display: none;">
+              <label class="block text-sm text-gray-600 mb-1">Rol</label>
+              <select v-model="usuRol" required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                <option value="2">Usuario</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">ID de Provincia</label>
+              <select v-model="proId" required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                <option value="" disabled selected>Seleccione</option>
+                <option v-for="provincia in provincias" :key="provincia.proId" :value="provincia.proId">{{
+                  provincia.proNombre }}</option>
+              </select>
+            </div>
+            <div style="display: none;">
+              <label class="block text-sm text-gray-600 mb-1">Estado</label>
+              <input type="text" v-model="usuEstado" readonly class="w-full p-2 border border-gray-300 rounded-lg" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Contraseña</label>
+              <input type="password" v-model="usuClave"
+                pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,}$"
+                title="Debe contener al menos una mayúscula, una minúscula, un número y un caracter especial, con un mínimo de 8 caracteres"
+                required autocomplete="new-password"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Usuario</label>
+              <input type="text" v-model="usuUser" required autocomplete="off"
+                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" />
+            </div>
+          </div>
+          <!-- Botón de Guardar -->
+          <button type="submit" class="bg-blue-500 text-white hover:bg-blue-600 p-2 rounded-lg mt-4">
+            Guardar Información
+          </button>
+        </form>
       </div>
     </div>
+
+    <!-- Alerta de éxito -->
+    <app-alert v-if="showSuccessAlert" type="success" :message="successMessage" @closed="limpiarAlertas" />
+
+    <!-- Alerta de error -->
+    <app-alert v-if="showErrorAlert" type="error" :message="errorMessage" @closed="limpiarAlertas" />
   </div>
 </template>
-  <script>
-  export default {
-    name: 'RegistrarForm'
-  }
-  </script>
-  
-  <style scoped>
-  @import 'https://cdn.tailwindcss.com?plugins=forms,typography';
-  
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
-  }
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-  }
-  </style>
-  
+
+<script>
+import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import AppAlert from '../components/Alert.vue';
+
+export default {
+  name: 'CrearPage',
+  components: {
+    AppAlert,
+  },
+  setup() {
+    const router = useRouter();
+    const usuNombres = ref('');
+    const usuApellidos = ref('');
+    const usuTipoDni = ref('');
+    const usuDni = ref('');
+    const usuCorreo = ref('');
+    const usuTelefono = ref('');
+    const usuDireccion = ref('');
+    const usuSexo = ref('');
+    const usuFechaNacimiento = ref('');
+    const usuProfesion = ref('');
+    const usuRol = ref('2'); // Siempre se registra como rol 2
+    const usuEstado = ref('A'); // Estado por defecto 'A'
+    const proId = ref('');
+    const usuClave = ref('');
+    const usuUser = ref('');
+    const provincias = ref([]);
+
+    const showSuccessAlert = ref(false);
+    const showErrorAlert = ref(false);
+    const successMessage = ref('');
+    const errorMessage = ref('');
+
+    const fetchProvincias = () => {
+      axios.get('http://172.24.0.11:5001/api/provincias')
+        .then(response => {
+          provincias.value = response.data;
+        })
+        .catch(error => {
+          console.error('Error al obtener las provincias:', error);
+        });
+    };
+
+    const guardarInformacion = () => {
+      const formData = {
+        usuNombres: usuNombres.value,
+        usuApellidos: usuApellidos.value,
+        usuTipoDni: usuTipoDni.value,
+        usuDni: usuDni.value,
+        usuCorreo: usuCorreo.value,
+        usuTelefono: usuTelefono.value,
+        usuDireccion: usuDireccion.value,
+        usuSexo: usuSexo.value,
+        usuFechaNacimiento: usuFechaNacimiento.value,
+        usuProfesion: usuProfesion.value,
+        usuRol: usuRol.value,
+        usuEstado: usuEstado.value,
+        proId: proId.value,
+        usuClave: usuClave.value,
+        usuUser: usuUser.value,
+      };
+
+      axios.post('http://172.24.0.11:5001/api/usuario', formData)
+        .then(() => {
+          successMessage.value = '¡Usuario creado exitosamente!';
+          showSuccessAlert.value = true;
+          limpiarCampos();
+
+          setTimeout(() => {
+            router.push('/usuarios');
+          }, 1000);
+        })
+        .catch(error => {
+          errorMessage.value = 'Error al crear el usuario. Por favor, inténtelo nuevamente.';
+          showErrorAlert.value = true;
+          console.error('Error al crear el usuario:', error);
+        });
+    };
+
+    const limpiarCampos = () => {
+      usuNombres.value = '';
+      usuApellidos.value = '';
+      usuTipoDni.value = '';
+      usuDni.value = '';
+      usuCorreo.value = '';
+      usuTelefono.value = '';
+      usuDireccion.value = '';
+      usuSexo.value = '';
+      usuFechaNacimiento.value = '';
+      usuProfesion.value = '';
+      usuRol.value = '2'; // Rol siempre es 2
+      usuEstado.value = 'A'; // Estado por defecto 'A'
+      proId.value = '';
+      usuClave.value = '';
+      usuUser.value = '';
+    };
+
+    const limpiarAlertas = () => {
+      showSuccessAlert.value = false;
+      showErrorAlert.value = false;
+      successMessage.value = '';
+      errorMessage.value = '';
+    };
+
+    const maxDate = new Date().toISOString().split('T')[0];
+
+    onMounted(() => {
+      fetchProvincias();
+    });
+
+    return {
+      usuNombres,
+      usuApellidos,
+      usuTipoDni,
+      usuDni,
+      usuCorreo,
+      usuTelefono,
+      usuDireccion,
+      usuSexo,
+      usuFechaNacimiento,
+      usuProfesion,
+      proId,
+      usuRol,
+      usuEstado,
+      usuClave,
+      usuUser,
+      provincias,
+      showSuccessAlert,
+      showErrorAlert,
+      successMessage,
+      errorMessage,
+      maxDate,
+      guardarInformacion,
+      limpiarAlertas,
+    };
+  },
+};
+</script>
+
+<style scoped>
+/* Estilos específicos del componente */
+</style>

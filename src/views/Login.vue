@@ -15,7 +15,6 @@
         <h1 class="text-3xl font-bold text-blue-700 mb-2">Ingresa a tu cuenta</h1>
         <p class="text-muted-foreground mb-6">¡Hola! Accede y encuentra el trabajo que buscas</p>
 
-        <!-- Formulario de inicio de sesión -->
         <form class="space-y-4" @submit.prevent="handleSubmit" autocomplete="off">
           <div>
             <label for="email" class="sr-only">Email</label>
@@ -45,9 +44,6 @@
           </div>
           <p v-if="showEmptyFieldsError" class="text-red-500">Por favor completa todos los campos.</p>
 
-          <div class="flex justify-between items-center">
-            <a href="#" class="text-pink-600 hover:underline">Olvidé mi contraseña</a>
-          </div>
           <button type="submit" class="w-full p-2 bg-zinc-500 text-white rounded-lg hover:bg-zinc-600">Ingresar</button>
         </form>
         <p class="mt-4 text-center text-muted-foreground">
@@ -92,16 +88,13 @@ export default {
     };
   },
   created() {
-    // Agregar listener para el evento beforeunload
     window.addEventListener('beforeunload', this.handleBeforeUnload);
   },
   beforeUnmount() {
-    // Remover listener para el evento beforeunload
     window.removeEventListener('beforeunload', this.handleBeforeUnload);
   },
   methods: {
     handleBeforeUnload() {
-      // Limpiar localStorage y sessionStorage
       localStorage.clear();
       sessionStorage.clear();
     },
@@ -130,10 +123,14 @@ export default {
         }
 
         const userData = await response.json();
-        const { usuCorreo, usuClave, usuRol, token } = userData; // Suponiendo que el token es parte de la respuesta
+        const { usuCorreo, usuClave, usuRol, token } = userData;
 
         if (this.correo === usuCorreo && this.clave === usuClave) {
-          localStorage.setItem('authToken', token); // Almacenar el token en localStorage
+          localStorage.setItem('authToken', token);
+          localStorage.setItem('userCorreo', this.correo);
+          localStorage.setItem('userRole', usuRol); // Almacenar el rol del usuario
+          await this.obtenerNombreUsuario(this.correo);
+
           if (usuRol === 1) {
             this.successMessage = 'Inicio de sesión exitoso como administrador';
             this.showSuccessAlert = true;
@@ -161,6 +158,24 @@ export default {
         setTimeout(() => {
           this.showErrorAlert = false;
         }, 3000);
+      }
+    },
+    async obtenerNombreUsuario(correo) {
+      try {
+        const response = await fetch('http://172.24.0.11:5001/api/usuario');
+        if (!response.ok) {
+          throw new Error('Error al obtener la lista de usuarios');
+        }
+        const usuarios = await response.json();
+        const usuario = usuarios.find(user => user.usuCorreo === correo);
+        if (usuario) {
+          const { usuUser } = usuario;
+          localStorage.setItem('nombreUsuario', usuUser);
+        } else {
+          throw new Error('Usuario no encontrado');
+        }
+      } catch (error) {
+        console.error('Error al obtener el nombre del usuario:', error.message);
       }
     },
     togglePasswordVisibility() {

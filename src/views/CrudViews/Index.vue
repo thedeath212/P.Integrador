@@ -53,6 +53,13 @@
         <div class="flex space-x-2">
           <router-link to="/crear" class="bg-blue-500 text-white py-2 px-4 rounded">AGREGAR NUEVO</router-link>
         </div>
+        <div class="flex items-center space-x-4">
+          <div class="user-info">
+            <img src="../../assets/personita.png" style="width: 40px; height: 40px;" alt="User Icon">
+            <span class="ml-2">{{ usuUser }}</span>
+          </div>
+          <button @click="cerrarSesion" class="bg-red-500 text-white py-2 px-4 rounded">Cerrar Sesión</button>
+        </div>
       </div>
       <div class="flex-grow overflow-auto">
         <table class="min-w-full bg-white">
@@ -92,7 +99,7 @@
               <td class="py-2 px-4">{{ obtenerSexo(usuario.usuSexo) }}</td>
               <td class="py-2 px-4">{{ usuario.usuFechaNacimiento }}</td>
               <td class="py-2 px-4">{{ usuario.usuProfesion }}</td>
-              <td class="py-2 px-4">{{ usuario.usuRol }}</td>
+              <td class="py-2 px-4">{{ obtenerRol(usuario.usuRol) }}</td>
               <td class="py-2 px-4">{{ usuario.usuEstado === 'A' ? '✔️' : '❌' }}</td>
             </tr>
           </tbody>
@@ -101,7 +108,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios';
 
@@ -112,11 +118,14 @@ export default {
       usuarios: [],
       filtroApellido: '',
       filtroEmail: '',
-      filtroActivo: ''
+      filtroActivo: '',
+      usuUser: '',
+      usuarioCorreo: localStorage.getItem('userCorreo') || ''
     };
   },
   mounted() {
     this.fetchUsuarios();
+    this.usuUser = localStorage.getItem('nombreUsuario') || '';
   },
   computed: {
     usuariosFiltrados() {
@@ -141,6 +150,9 @@ export default {
       }
 
       return usuariosFiltrados;
+    },
+    usuarioActual() {
+      return this.usuarios.find(usuario => usuario.usuCorreo === this.usuarioCorreo);
     }
   },
   methods: {
@@ -154,31 +166,53 @@ export default {
     },
     async eliminarUsuario(usuId) {
       try {
-        await axios.post(`http://localhost:5001/api/usuario/${usuId}`);
-        this.usuarios = this.usuarios.filter(usuario => usuario.usuId !== usuId);
+        const response = await axios.post(`http://172.24.0.11:5001/api/usuario/${usuId}`, {
+          usuEstado: 'I' 
+        });
+        if (response.status === 200) {
+          this.usuarios = this.usuarios.map(usuario =>
+            usuario.usuId === usuId ? { ...usuario, usuEstado: 'I' } : usuario
+          );
+        } else {
+          console.error('Error al actualizar el estado del usuario.');
+        }
       } catch (error) {
         console.error('Error al eliminar el usuario:', error);
       }
     },
+
     limpiarFiltros() {
       this.filtroApellido = '';
       this.filtroEmail = '';
       this.filtroActivo = '';
     },
     obtenerTipoDni(tipoDni) {
-      const tipos = {
-        '1': 'Cédula',
-        '2': 'RUC',
-      };
-      return tipos[tipoDni] || 'Desconocido';
+      if (tipoDni === '1') {
+        return 'Cédula';  // Si tipoDni es '1', mostrar 'Cédula'
+      } else if (tipoDni === '2') {
+        return 'RUC';  // Si tipoDni es '2', mostrar 'RUC'
+      } else {
+        return 'Desconocido';  // En caso contrario, mostrar 'Desconocido'
+      }
     },
     obtenerSexo(sexo) {
-      return sexo === '1' ? 'Masculino' : 'Femenino';
+      const sexos = {
+        '1': 'Masculino',
+        '2': 'Femenino',
+      };
+      return sexos[sexo] || 'Desconocido';  // Devuelve el valor mapeado o 'Desconocido' si no hay coincidencia
+    },
+    obtenerRol(rol) {
+      return rol === 1 ? 'admin' : (rol === 2 ? 'usuario' : 'Desconocido');
+    },
+    cerrarSesion() {
+      localStorage.clear();
+      this.$router.push('/login');
     }
   }
 };
 </script>
 
 <style scoped>
-/* Estilos específicos del componente */
+/* Agregar estilos aquí */
 </style>

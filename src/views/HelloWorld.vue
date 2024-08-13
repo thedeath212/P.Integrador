@@ -1,19 +1,15 @@
 <template>
   <div class="bg-gradient-to-r from-pink-200 via-purple-200 to-blue-200 min-h-screen">
     <header class="flex justify-between items-center p-4 bg-white shadow">
-      <img src="https://placehold.co/150x50?text=multitrabajos" alt="multitrabajos logo" class="h-10">
+      <img src="../assets/MultiEmpleo.png" alt="multitrabajos logo" class="h-10">
       <nav class="hidden md:flex space-x-4">
         <a href="#" class="text-zinc-600 hover:text-zinc-800">Buscar empresas</a>
         <a href="#" class="text-zinc-600 hover:text-zinc-800">Jóvenes profesionales</a>
         <a href="#" class="text-zinc-600 hover:text-zinc-800">Puestos ejecutivos</a>
       </nav>
       <div class="flex space-x-4">
-        <a href="#" class="text-zinc-600 hover:text-zinc-800 hidden md:block">Cuenta empresa</a>
-        <a href="#" class="text-pink-600 hover:text-pink-800">Publicar gratis</a>
-        <router-link to="/register" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Crear
-          cuenta</router-link>
-        <router-link to="/login"
-          class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Ingresar</router-link>
+        <router-link to="/register" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Crear cuenta</router-link>
+        <router-link to="/login" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Ingresar</router-link>
       </div>
       <button class="md:hidden block">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -29,16 +25,14 @@
       <a href="#" class="text-zinc-600 hover:text-zinc-800">Cuenta empresa</a>
     </nav>
     <main class="flex flex-col items-center justify-center py-8 px-4 md:py-16 md:px-0">
-      <div
-        class="flex flex-col md:flex-row items-center justify-center max-w-6xl mx-auto space-y-4 md:space-y-0 md:space-x-4">
+      <div class="flex flex-col md:flex-row items-center justify-center max-w-6xl mx-auto space-y-4 md:space-y-0 md:space-x-4">
         <div class="text-center md:text-left md:w-1/2 p-4">
-          <h1 class="text-4xl font-bold">Hay <span class="text-pink-600">4.559</span> trabajos esperándote en Ecuador
-          </h1>
+          <h1 class="text-4xl font-bold">Hay <span class="text-pink-600">4.559</span> trabajos esperándote en Ecuador</h1>
           <div class="mt-6">
             <input type="text" placeholder="Puesto, empresa o palabra clave" class="w-full p-3 border rounded mb-4">
             <select class="w-full p-3 border rounded mb-4" v-model="selectedProvince">
               <option value="">Seleccione una provincia</option>
-              <option v-for="provincia in provincias" :key="provincia.proId" :value="provincia.id">
+              <option v-for="provincia in provincias" :key="provincia.proId" :value="provincia.proId">
                 {{ provincia.proNombre }}
               </option>
             </select>
@@ -52,14 +46,14 @@
     </main>
     <section class="bg-white py-8">
       <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-4 px-4 md:px-0">
+        <div class="relative">
           <h2 class="text-xl font-bold">Jóvenes profesionales</h2>
-          <a href="#" class="text-zinc-600 hover:text-zinc-800">Ver más</a>
-        </div>
-        <div class="flex space-x-4 overflow-x-auto">
-          <div class="flex-none w-64 h-40 bg-zinc-200 rounded-lg shadow-lg"></div>
-          <div class="flex-none w-64 h-40 bg-zinc-200 rounded-lg shadow-lg"></div>
-          <div class="flex-none w-64 h-40 bg-zinc-200 rounded-lg shadow-lg"></div>
+          <div class="flex space-x-4 overflow-x-auto carousel-container">
+            <img src="../assets/Profe.png" alt="Image 1" class="flex-none w-64 h-40 rounded-lg shadow-lg">
+            <img src="../assets/Profe2.png" alt="Image 2" class="flex-none w-64 h-40 rounded-lg shadow-lg">
+            <img src="../assets/Profe3.png" alt="Image 3" class="flex-none w-64 h-40 rounded-lg shadow-lg">
+            <img src="../assets/Profe4.png" alt="Image 3" class="flex-none w-64 h-40 rounded-lg shadow-lg">
+          </div>
         </div>
       </div>
     </section>
@@ -67,12 +61,14 @@
       <div class="max-w-6xl mx-auto">
         <div class="flex justify-between items-center mb-4 px-4 md:px-0">
           <h2 class="text-xl font-bold">Puestos ejecutivos y directivos</h2>
-          <a href="#" class="text-zinc-600 hover:text-zinc-800">Ver más</a>
         </div>
         <div class="flex space-x-4 overflow-x-auto">
-          <div class="flex-none w-64 h-40 bg-zinc-200 rounded-lg shadow-lg"></div>
-          <div class="flex-none w-64 h-40 bg-zinc-200 rounded-lg shadow-lg"></div>
-          <div class="flex-none w-64 h-40 bg-zinc-200 rounded-lg shadow-lg"></div>
+          <div class="flex space-x-4 overflow-x-auto carousel-container">
+            <img src="../assets/Puestos.png" alt="Image 1" class="flex-none w-64 h-40 rounded-lg shadow-lg">
+            <img src="../assets/Puestos2.png" alt="Image 2" class="flex-none w-64 h-40 rounded-lg shadow-lg">
+            <img src="../assets/Puestos3.png" alt="Image 3" class="flex-none w-64 h-40 rounded-lg shadow-lg">
+            <img src="../assets/Puestos4.png" alt="Image 3" class="flex-none w-64 h-40 rounded-lg shadow-lg">
+          </div>
         </div>
       </div>
     </section>
@@ -82,8 +78,7 @@
         <div class="flex flex-wrap justify-center space-x-4">
           <img src="../assets/logoEmpe.png" alt="PRONACA logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
           <img src="../assets/logoEmpe1.png" alt="NIPRO logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
-          <img src="../assets/logoEmpe2.png" alt="multitrabajos logo"
-            class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
+          <img src="../assets/logoEmpe2.png" alt="multitrabajos logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
           <img src="../assets/logoEmpe3.png" alt="QSI logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
           <img src="../assets/logoEmpe5.png" alt="SEDEMI logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
           <img src="../assets/logoEmpe4.png" alt="bayteq logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
@@ -103,15 +98,12 @@
           </ul>
           <br>
           <br>
-          <router-link to="/register"
-            class="mt-4 block text-center bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">
+          <router-link to="/register" class="mt-4 block text-center bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">
             Crear cuenta
           </router-link>
         </div>
-
         <div class="md:w-1/2 p-4">
-          <img src="../assets/formulario.jpg" alt="Ilustración de creación de cuenta"
-            class="rounded-lg shadow-lg w-full">
+          <img src="../assets/formulario.jpg" alt="Ilustración de creación de cuenta" class="rounded-lg shadow-lg w-full">
         </div>
       </div>
     </section>
@@ -127,25 +119,33 @@ export default defineComponent({
   data() {
     return {
       provincias: [],
-      showNav: false
+      selectedProvince: '',
     };
   },
-  mounted() {
-    this.obtenerProvincias();
-  },
-  methods: {
-    async obtenerProvincias() {
-      try {
-        const response = await axios.get('http://172.24.0.11:5001/api/provincias');
-        this.provincias = response.data;
-      } catch (error) {
-        console.error('Error al obtener las provincias:', error);
-      }
-    },
-    toggleNav() {
-      this.showNav = !this.showNav;
+  async mounted() {
+    try {
+      const response = await axios.get('http://172.24.0.11:5001/api/provincias');
+      this.provincias = response.data;
+    } catch (error) {
+      console.error(error);
     }
-  }
+
+    const carouselContainers = this.$el.querySelectorAll('.carousel-container');
+    carouselContainers.forEach((container) => {
+      let scrollAmount = 0;
+      const scrollStep = 2;
+      const maxScroll = container.scrollWidth - container.clientWidth;
+
+      setInterval(() => {
+        container.scrollLeft += scrollStep;
+        scrollAmount += scrollStep;
+        if (scrollAmount >= maxScroll) {
+          scrollAmount = 0;
+          container.scrollLeft = 0;
+        }
+      }, 20);
+    });
+  },
 });
 </script>
 
@@ -155,4 +155,21 @@ export default defineComponent({
     max-width: 100%;
   }
 }
+
+  .carousel-container {
+    scroll-snap-type: x mandatory;
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none; /* Ocultar la barra de desplazamiento en Firefox */
+  }
+
+  .carousel-container::-webkit-scrollbar {
+    display: none; /* Ocultar la barra de desplazamiento en Chrome, Safari y Opera */
+  }
+
+  .carousel-container > img {
+    scroll-snap-align: start;
+  }
+
+
 </style>

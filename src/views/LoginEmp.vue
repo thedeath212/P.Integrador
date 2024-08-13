@@ -14,7 +14,6 @@
         <h1 class="text-3xl font-bold text-blue-700 mb-2">Ingresa a tu cuenta como empresa</h1>
         <p class="text-muted-foreground mb-6">¡Hola! Accede como empresa y gestiona tus vacantes</p>
 
-
         <form class="space-y-4" @submit.prevent="handleSubmit">
           <div>
             <label for="email" class="sr-only">Email</label>
@@ -35,19 +34,18 @@
           </div>
           <p v-if="showEmptyFieldsError" class="text-red-500">Por favor completa todos los campos.</p>
 
-          <div class="flex justify-between items-center">
-            <a href="#" class="text-pink-600 hover:underline">Olvidé mi contraseña</a>
-          </div>
           <button type="submit" class="w-full p-2 bg-zinc-500 text-white rounded-lg hover:bg-zinc-600">Ingresar Como Empresa</button>
         </form>
         <p class="mt-4 text-center text-muted-foreground">
-          ¿No tienes cuenta? <router-link to="/rempresas" class="text-pink-600 hover:underline">Regístrate como empresa</router-link>
+          ¿No tienes cuenta? <router-link to="/rempesas" class="text-pink-600 hover:underline">Regístrate como empresa</router-link>
         </p>
       </div>
       <div class="hidden md:block w-1/2 p-4">
         <img src="https://i.imgur.com/rteOfkV.png" alt="Ilustración de una persona con un currículum" class="max-w-full h-auto" />
       </div>
     </main>
+    
+    <!-- Alertas -->
     <transition name="fade">
       <div v-if="showSuccessAlert" class="alert-container">
         <AppAlert type="success" :message="successMessage" />
@@ -65,9 +63,8 @@
 import AppAlert from '../components/Alert.vue';
 
 export default {
-  name: 'LoginEmpresas',
   components: {
-    AppAlert
+    AppAlert,
   },
   data() {
     return {
@@ -82,82 +79,48 @@ export default {
     };
   },
   methods: {
+    togglePasswordVisibility() {
+      this.passwordVisible = !this.passwordVisible;
+    },
     async handleSubmit() {
+      // Verifica si los campos están vacíos
       if (!this.email || !this.password) {
         this.showEmptyFieldsError = true;
         return;
-      } else {
-        this.showEmptyFieldsError = false;
       }
+      this.showEmptyFieldsError = false;
 
       try {
-        const response = await fetch('http://172.24.0.11:5001/api/usuario/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            correo: this.email,
-            clave: this.password,
-          }),
+        // Simula la llamada a la API para autenticación
+        const response = await this.$axios.post('API_ENDPOINT', {
+          email: this.email,
+          password: this.password,
         });
 
-        if (!response.ok) {
-          throw new Error('Credenciales inválidas');
-        }
+        if (response.data.success) {
+          this.successMessage = 'Inicio de sesión exitoso.';
+          this.showSuccessAlert = true;
 
-        let userData = null;
-        try {
-          userData = await response.json();
-        } catch (error) {
-          throw new Error('Credenciales incorrectas');
-        }
-
-        const { usuCorreo, usuClave, usuRol } = userData;
-
-        if (this.email === usuCorreo && this.password === usuClave) {
-          if (usuRol === 1) {
-            this.successMessage = 'Inicio de sesión exitoso como administrador';
-            this.showSuccessAlert = true;
-            setTimeout(() => {
-              this.showSuccessAlert = false;
-              this.$router.push('/dashboard');
-            }, 1000);
-          } else if (usuRol === 2) {
-            this.successMessage = 'Inicio de sesión exitoso como usuario';
-            this.showSuccessAlert = true;
-            setTimeout(() => {
-              this.showSuccessAlert = false;
-              this.$router.push('/user');
-            }, 1000);
-          } else {
-            throw new Error('Rol de usuario desconocido');
-          }
+          // Redirecciona a /dashempresas después de un breve retraso
+          setTimeout(() => {
+            this.$router.push('/dashempresas');
+          }, 1000);
         } else {
-          throw new Error('Credenciales incorrectas');
+          this.errorMessage = 'Credenciales incorrectas.';
+          this.showErrorAlert = true;
         }
       } catch (error) {
-        console.error('Error al iniciar sesión:', error.message);
-        this.errorMessage = error.message;
+        this.errorMessage = 'Error al intentar iniciar sesión.';
         this.showErrorAlert = true;
-        setTimeout(() => {
-          this.showErrorAlert = false;
-        }, 3000);
       }
     },
-    togglePasswordVisibility() {
-      this.passwordVisible = !this.passwordVisible;
-    }
-  }
+  },
 };
 </script>
 
-<style scoped>
+<style>
 .alert-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 9999;
+  margin-top: 1rem;
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -166,57 +129,5 @@ export default {
 
 .fade-enter, .fade-leave-to {
   opacity: 0;
-}
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: hsl(var(--muted));
-    --input: hsl(var(--muted));
-    --ring: 240 5% 64.9%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4% 15%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 85.7% 97.8%;
-    --border: hsl(var(--muted));
-    --input: hsl(var(--muted));
-    --ring: 240 10% 3.9%;
-    --radius: 0.5rem;
-  }
 }
 </style>

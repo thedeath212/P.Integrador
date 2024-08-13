@@ -3,14 +3,15 @@
     <header class="flex items-center justify-between p-4 bg-white shadow-md">
       <div class="flex items-center space-x-4">
         <img src="https://i.imgur.com/RCpUHKA.png" alt="Logo Multitrabajos" class="h-10">
-        <input type="text" placeholder="Buscar empleo por puesto o palabra clave" class="border rounded-md p-2 w-64 focus:ring-2 focus:ring-primary">
-        <input type="text" placeholder="Lugar de empleo" class="border rounded-md p-2 w-64 focus:ring-2 focus:ring-primary">
+        <input type="text" placeholder="Buscar empleo por puesto o palabra clave"
+          class="border rounded-md p-2 w-64 focus:ring-2 focus:ring-primary">
+        <input type="text" placeholder="Lugar de empleo"
+          class="border rounded-md p-2 w-64 focus:ring-2 focus:ring-primary">
         <button class="bg-primary text-primary-foreground p-2 rounded-md hover:bg-primary/80 transition">Buscar</button>
       </div>
       <div class="flex items-center space-x-4">
         <a href="#" class="text-muted-foreground hover:text-primary transition">Mis postulaciones</a>
-        <a href="#" class="text-muted-foreground hover:text-primary transition">Salarios</a>
-        <img src="https://placehold.co/40x40?text=👤" alt="User Profile" class="h-10 w-10 rounded-full">
+        <button @click="cerrarSesion" class="bg-red-500 text-white py-2 px-4 rounded">Cerrar Sesión</button>
       </div>
     </header>
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-4">
@@ -20,23 +21,44 @@
             <img :src="userProfileImage" alt="User Profile" class="h-20 w-20 rounded-full mb-4 cursor-pointer">
           </label>
           <input id="profileImageInput" type="file" class="hidden" @change="handleImageChange">
-          <h2 class="text-xl font-semibold text-blue-800">Omar Arias</h2>
-          <p class="text-muted-foreground">Asesor comercial</p>
-          <button class="bg-primary text-primary-foreground p-2 rounded-md mt-4 hover:bg-primary/80 transition">Ir a mi HV</button>
-          <p class="text-muted-foreground mt-4">Última modificación de la HV: 0 días</p>
-          <div class="mt-4">
-            <h3 class="text-lg font-semibold text-blue-800">Informa a las empresas tu disponibilidad</h3>
-            <ul class="mt-2 space-y-2">
-              <li class="flex items-center space-x-2">
-                <input type="checkbox" class="form-checkbox">
-                <span>Escucho propuestas de empleo</span>
-              </li>
-              <li class="flex items-center space-x-2">
-                <input type="checkbox" class="form-checkbox">
-                <span>Puedo empezar de inmediato</span>
-              </li>
-            </ul>
+          <h2 class="text-xl font-semibold text-blue-800">{{ usuarioDatos.usuNombres }} {{ usuarioDatos.usuApellidos }}
+          </h2>
+          <div class="space-y-2 mt-4 w-full">
+            <div class="flex justify-between">
+              <span class="font-semibold text-blue-800">Cédula:</span>
+              <span>{{ usuarioDatos.usuDni }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-semibold text-blue-800">Correo:</span>
+              <span>{{ usuarioDatos.usuCorreo }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-semibold text-blue-800">Teléfono:</span>
+              <span>{{ usuarioDatos.usuTelefono }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-semibold text-blue-800">Sexo:</span>
+              <span>{{ obtenerSexo(usuarioDatos.usuSexo) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-semibold text-blue-800">Fecha de Nacimiento:</span>
+              <span>{{ formatFecha(usuarioDatos.usuFechaNacimiento) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="font-semibold text-blue-800">Profesión:</span>
+              <span>{{ usuarioDatos.usuProfesion }}</span>
+            </div>
           </div>
+          <!-- Sección para subir CV en PDF -->
+          <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition mt-4">
+            <h3 class="text-lg font-semibold text-blue-800">Subir CV en PDF</h3>
+            <input type="file" accept=".pdf" @change="handleFileChange" class="border rounded-md p-2 w-full">
+            <p v-if="uploadError" class="text-red-500 mt-2">{{ uploadError }}</p>
+            <button @click="uploadPDF"
+              class="bg-primary text-primary-foreground p-2 rounded-md mt-4 hover:bg-primary/80 transition">
+              Subir PDF
+            </button>
+          </section>
           <div class="mt-4">
             <h3 class="text-lg font-semibold text-blue-800">Mejora tu HV agregando:</h3>
             <ul class="mt-2 space-y-2">
@@ -62,123 +84,174 @@
       </aside>
       <main class="col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
-          <h3 class="text-lg font-semibold text-blue-800">Empleos favoritos</h3>
-          <div class="border-dashed border-2 border-zinc-300 p-4 rounded-lg mt-4 text-center">
-            <p class="text-muted-foreground">Guarda empleos para postularte más tarde</p>
-            <router-link to="/ruta-deseada" class="block">
-              <button class="bg-secondary text-secondary-foreground p-2 rounded-md mt-2 hover:bg-secondary/80 transition">Ver empleos</button>
-            </router-link>
+          <h3 class="text-lg font-semibold text-blue-800">Publicaciones</h3>
+          <div v-if="publicaciones.length === 0" class="text-center text-muted-foreground mt-4">
+            No hay publicaciones disponibles.
           </div>
-        </section>
-        <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
-          <h3 class="text-lg font-semibold text-blue-800">Empresas favoritas</h3>
-          <div class="border-dashed border-2 border-zinc-300 p-4 rounded-lg mt-4 text-center">
-            <p class="text-muted-foreground">Guarda las empresas que más te interesen</p>
-            <button class="bg-secondary text-secondary-foreground p-2 rounded-md mt-2 hover:bg-secondary/80 transition">Ver empresas</button>
-          </div>
-        </section>
-        <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
-          <h3 class="text-lg font-semibold text-blue-800">Mi actividad</h3>
-          <p class="mt-4">0 Postulaciones esta semana</p>
-          <p class="mt-2">0 HV leída</p>
-          <p class="mt-2">0 Visualizaciones de mi hv</p>
-          <router-link to="/mis-postulaciones" class="text-primary mt-4 inline-block hover:underline">Ir a mis postulaciones</router-link>
-        </section>
-        <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
-          <h3 class="text-lg font-semibold text-blue-800">Salario pretendido</h3>
-          <p class="text-muted-foreground mt-4">Salario comparado con otros postulantes en la misma área.</p>
-          <div class="border-dashed border-2 border-zinc-300 p-4 rounded-lg mt-4 text-center">
-            <p class="text-muted-foreground">Para conocer tu posible salario, postúlate a un aviso</p>
-            <button class="bg-secondary text-secondary-foreground p-2 rounded-md mt-2 hover:bg-secondary/80 transition">Ver empleos</button>
-          </div>
-        </section>
-        <section class="col-span-2 bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
-          <h3 class="text-lg font-semibold text-blue-800">Empleos recomendados por IA</h3>
-          <div class="mt-4">
-            <div class="flex items-start space-x-4 p-4 border rounded-lg hover:bg-zinc-50 transition">
-              <img src="https://placehold.co/60x60?text=Logo" alt="Corporacion El Rosado" class="h-12 w-12">
-              <div>
-                <h4 class="text-lg font-semibold">CORPORACION EL ROSADO</h4>
-                <p class="text-muted-foreground">4.4 ★ - Publicado hace más de 30 días</p>
-              </div>
+          <div v-else class="mt-4 grid grid-cols-1 gap-4">
+            <div v-for="publicacion in publicaciones" :key="publicacion.pubId"
+              class="bg-gray-100 p-4 rounded-lg shadow-md">
+              <h4 class="text-lg font-semibold text-blue-800">{{ publicacion.pubTitulo }}</h4>
+              <p class="text-md mt-2 text-gray-700">{{ publicacion.pubTema }}</p>
+              <p class="mt-2">{{ publicacion.pubDescripcion }}</p>
+              <p class="mt-2 font-bold">Salario: ${{ publicacion.pubSalario }}</p>
             </div>
           </div>
         </section>
+        <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
+          <h3 class="text-lg font-semibold text-blue-800">Experiencias</h3>
+          <div v-if="experiencias.length === 0" class="text-center text-muted-foreground mt-4">
+            No hay experiencias disponibles.
+          </div>
+          <!-- Añadir sección para experiencias si es necesario -->
+        </section>
       </main>
     </div>
+    <transition name="fade">
+      <div v-if="showSuccessAlert" class="alert-container">
+        <AppAlert type="success" :message="successMessage" />
+      </div>
+    </transition>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 export default {
-  name: "UsuarioPage",
+  name: 'UsuarioPage',
   data() {
     return {
-      userProfileImage: require('@/assets/user-profile.jpg'),
+      usuarioDatos: {},
+      userProfileImage: 'https://i.imgur.com/RCpUHKA.png', // URL de la imagen de perfil predeterminada
+      publicaciones: [], // Inicializar propiedad
+      experiencias: [], // Añadir esta propiedad si planeas usarla
+      selectedFile: null,
+      uploadError: '', // Para mostrar mensajes de error
+      showSuccessAlert: false, // Para mostrar la alerta de éxito
+      successMessage: '' // Mensaje de éxito
     };
   },
+  mounted() {
+    this.obtenerDatosUsuario();
+    this.obtenerPublicaciones(); // Asegúrate de llamar a la función para obtener publicaciones
+  },
   methods: {
+    async obtenerDatosUsuario() {
+      try {
+        const correo = localStorage.getItem('userCorreo');
+        if (!correo) {
+          throw new Error('Correo del usuario no encontrado en el almacenamiento local');
+        }
+
+        const response = await fetch('http://172.24.0.11:5001/api/usuario');
+        if (!response.ok) {
+          throw new Error('Error al obtener los datos del usuario');
+        }
+
+        const usuarios = await response.json();
+        const usuario = usuarios.find(user => user.usuCorreo === correo);
+
+        if (usuario) {
+          this.usuarioDatos = usuario;
+          if (usuario.imagenPerfil) {
+            this.userProfileImage = usuario.imagenPerfil;
+          }
+        } else {
+          throw new Error('Usuario no encontrado');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    },
+    async obtenerPublicaciones() {
+      try {
+        const response = await fetch('http://172.24.0.11:5001/api/publicaciones');
+        if (!response.ok) {
+          throw new Error('Error al obtener las publicaciones');
+        }
+
+        this.publicaciones = await response.json();
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    },
+    obtenerSexo(sexo) {
+      const sexos = {
+        '1': 'Masculino',
+        '2': 'Femenino'
+      };
+      return sexos[sexo] || 'No especificado';
+    },
+    formatFecha(fecha) {
+      if (!fecha) return 'Fecha no disponible';
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(fecha).toLocaleDateString('es-ES', options);
+    },
     handleImageChange(event) {
       const file = event.target.files[0];
       if (file) {
-        this.userProfileImage = URL.createObjectURL(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.userProfileImage = e.target.result;
+        };
+        reader.readAsDataURL(file);
       }
     },
-  },
+    handleFileChange(event) {
+      this.selectedFile = event.target.files[0];
+    },
+    async uploadPDF() {
+      if (!this.selectedFile) {
+        this.uploadError = 'Selecciona un archivo PDF antes de subir.';
+        return;
+      }
+      if (this.selectedFile.type !== 'application/pdf') {
+        this.uploadError = 'El archivo debe ser un PDF.';
+        return;
+      }
+      const usuarioId = this.usuarioDatos.usuId;
+      if (!usuarioId) {
+        this.uploadError = 'ID de usuario no disponible.';
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append('usuCv', this.selectedFile);
+
+        const response = await axios.put(`http://172.24.0.11:5001/api/usuario/${usuarioId}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        if (response.status === 200) {
+          this.successMessage = 'CV subido exitosamente';
+          this.showSuccessAlert = true;
+          setTimeout(() => this.showSuccessAlert = false, 3000);
+          this.uploadError = '';
+        } else {
+          throw new Error('Error al subir el CV');
+        }
+      } catch (axiosError) {
+        this.uploadError = axiosError.response ? axiosError.response.data : 'Error al enviar la solicitud';
+        console.error('Error al subir el CV:', axiosError);
+      }
+    },
+    cerrarSesion() {
+      localStorage.removeItem('userCorreo');
+      this.$router.push('/login');
+    }
+  }
 };
 </script>
 
 <style scoped>
-@import url("https://cdn.tailwindcss.com?plugins=forms,typography");
-
-/* Estilos específicos del componente */
-.bg-background {
-  background-color: #f0f4f8; /* Color de fondo principal */
-}
-
-.text-foreground {
-  color: #1a202c; /* Color de texto principal */
-}
-
-.border-zinc-300 {
-  border-color: #cbd5e0; /* Color de borde */
-}
-
-.shadow-md {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-/* Colores personalizados */
-.primary {
-  color: #3182ce;
-}
-
-.primary-foreground {
-  color: #ebf8ff;
-}
-
-.secondary {
-  color: #4a5568;
-}
-
-.secondary-foreground {
-  color: #edf2f7;
-}
-
-.muted-foreground {
-  color: #718096;
-}
-
-/* Personalización adicional */
-input:focus {
-  outline-color: #63b3ed; /* Color de foco */
-}
-
-button:hover {
-  filter: brightness(90%);
+/* Estilos para la página de usuario */
+.alert-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  margin: 1rem;
 }
 </style>
