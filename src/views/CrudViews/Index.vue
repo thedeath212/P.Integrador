@@ -86,7 +86,7 @@
               <td class="py-2 px-4 flex space-x-2">
                 <router-link :to="'/editar-usuario/' + usuario.usuId"
                   class="bg-yellow-500 text-white p-2 rounded">✏️</router-link>
-                <button @click="eliminarUsuario(usuario.usuId)" class="bg-red-500 text-white p-2 rounded">🗑️</button>
+                <button @click="confirmarEliminar(usuario.usuId)" class="bg-red-500 text-white p-2 rounded">🗑️</button>
               </td>
               <td class="py-2 px-4">{{ usuario.usuId }}</td>
               <td class="py-2 px-4">{{ usuario.usuNombres }}</td>
@@ -106,8 +106,21 @@
         </table>
       </div>
     </div>
+
+    <!-- Modal de confirmación -->
+    <div v-if="mostrarModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded shadow-lg">
+        <h2 class="text-xl font-bold mb-4">Confirmar Eliminación</h2>
+        <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+        <div class="mt-6 flex justify-end space-x-2">
+          <button @click="eliminarUsuario(usuIdSeleccionado)" class="bg-red-500 text-white py-2 px-4 rounded">Eliminar</button>
+          <button @click="cancelarEliminacion" class="bg-gray-500 text-white py-2 px-4 rounded">Cancelar</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
 <script>
 import axios from 'axios';
 
@@ -120,7 +133,9 @@ export default {
       filtroEmail: '',
       filtroActivo: '',
       usuUser: '',
-      usuarioCorreo: localStorage.getItem('userCorreo') || ''
+      usuarioCorreo: localStorage.getItem('userCorreo') || '',
+      mostrarModal: false,
+      usuIdSeleccionado: null
     };
   },
   mounted() {
@@ -164,54 +179,51 @@ export default {
         console.error('Error al cargar los datos:', error);
       }
     },
+    confirmarEliminar(usuId) {
+      this.usuIdSeleccionado = usuId;
+      this.mostrarModal = true;
+    },
     async eliminarUsuario(usuId) {
       try {
-        const response = await axios.post(`http://172.24.0.11:5001/api/usuario/${usuId}`, {
-          usuEstado: 'I' 
-        });
-        if (response.status === 200) {
-          this.usuarios = this.usuarios.map(usuario =>
-            usuario.usuId === usuId ? { ...usuario, usuEstado: 'I' } : usuario
-          );
-        } else {
-          console.error('Error al actualizar el estado del usuario.');
-        }
+        await axios.post(`http://172.24.0.11:5001/api/usuario/${usuId}`);
+        this.usuarios = this.usuarios.filter(usuario => usuario.usuId !== usuId);
+        this.mostrarModal = false;
       } catch (error) {
-        console.error('Error al eliminar el usuario:', error);
+        console.error('Error al eliminar usuario:', error);
       }
     },
-
+    cancelarEliminacion() {
+      this.mostrarModal = false;
+      this.usuIdSeleccionado = null;
+    },
+    obtenerTipoDni(tipoDni) {
+      const tiposDni = {
+        '1': 'Cédula',
+        '2': 'RUC',
+        '3': 'Pasaporte'
+      };
+      return tiposDni[tipoDni] || 'Desconocido';
+    },
+    obtenerSexo(sexo) {
+      return sexo === 'M' ? 'Masculino' : 'Femenino';
+    },
+    obtenerRol(rol) {
+      return rol === 1 ? 'admin' : 'usuario';
+    },
     limpiarFiltros() {
       this.filtroApellido = '';
       this.filtroEmail = '';
       this.filtroActivo = '';
     },
-    obtenerTipoDni(tipoDni) {
-      if (tipoDni === '1') {
-        return 'Cédula';  // Si tipoDni es '1', mostrar 'Cédula'
-      } else if (tipoDni === '2') {
-        return 'RUC';  // Si tipoDni es '2', mostrar 'RUC'
-      } else {
-        return 'Desconocido';  // En caso contrario, mostrar 'Desconocido'
-      }
-    },
-    obtenerSexo(sexo) {
-      const sexos = {
-        '1': 'Masculino',
-        '2': 'Femenino',
-      };
-      return sexos[sexo] || 'Desconocido';  // Devuelve el valor mapeado o 'Desconocido' si no hay coincidencia
-    },
-    obtenerRol(rol) {
-      return rol === 1 ? 'admin' : (rol === 2 ? 'usuario' : 'Desconocido');
-    },
     cerrarSesion() {
-      localStorage.clear();
+      localStorage.removeItem('nombreUsuario');
+      localStorage.removeItem('userCorreo');
       this.$router.push('/login');
     }
   }
 };
 </script>
+
 
 <style scoped>
 /* Agregar estilos aquí */

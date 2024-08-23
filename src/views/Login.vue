@@ -136,7 +136,7 @@ export default {
             this.showSuccessAlert = true;
             setTimeout(() => {
               this.showSuccessAlert = false;
-              this.$router.push('/dashboard');
+              this.$router.push('/usuarios');
             }, 1000);
           } else if (usuRol === 2) {
             this.successMessage = 'Inicio de sesión exitoso como usuario';
@@ -149,7 +149,7 @@ export default {
             throw new Error('Rol de usuario desconocido');
           }
         } else {
-          throw new Error('Credenciales incorrectas');
+          throw new Error('Credenciales inválidas');
         }
       } catch (error) {
         console.error('Error al iniciar sesión:', error.message);
