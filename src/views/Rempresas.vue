@@ -1,12 +1,13 @@
 <template>
   <div class="min-h-screen flex flex-col items-center justify-start bg-background text-foreground">
     <header class="w-full flex justify-start items-center p-4 bg-white shadow-md">
-      <router-link to="/logemp" class="text-xl p-2">
-        <img aria-hidden="true" alt="back-arrow" src="https://openui.fly.dev/openui/24x24.svg?text=←"
-          class="h-6 w-6 md:h-8 md:w-8" />
-      </router-link>
+      <button class="text-xl p-2">
+        <router-link to="/logemp" class="text-xl p-2">
+          <img aria-hidden="true" alt="back-arrow" src="https://openui.fly.dev/openui/24x24.svg?text=←"
+            class="h-6 w-6 md:h-8 md:w-8" />
+        </router-link>
+      </button>
       <img src="../assets/MultiEmpleo.png" alt="multitrabajos logo" class="h-6 ml-4" />
-      <router-link to="/logemp" class="text-pink-600 hover:underline ml-auto">Ingresa como empresa</router-link>
     </header>
     <main class="flex flex-col md:flex-row items-center justify-center w-full max-w-6xl mt-8 p-4">
       <div class="w-full md:w-1/2 p-4 bg-blue-100 rounded-lg shadow-lg">
@@ -66,10 +67,26 @@
                 <span v-if="errors.correo" class="text-red-600 text-sm">{{ errors.correo }}</span>
               </div>
               <div>
-                <label for="nombreEmpresa" class="block text-sm font-medium">Nombre de la Empresa</label>
+                <label for="nombreEmpresa" class="block text-sm font-medium">Nombre de la
+                  Empresa</label>
                 <input v-model="nombreEmpresa" type="text" id="nombreEmpresa"
                   class="mt-1 block w-full border border-input rounded-lg p-2" />
-                <span v-if="errors.nombreEmpresa" class="text-red-600 text-sm">{{ errors.nombreEmpresa }}</span>
+                <span v-if="errors.nombreEmpresa" class="text-red-600 text-sm">{{ errors.nombreEmpresa
+                  }}</span>
+              </div>
+              <!-- Nuevos campos -->
+              <div>
+                <label for="comRazonSocial" class="block text-sm font-medium">Razón Social</label>
+                <input v-model="comRazonSocial" type="text" id="comRazonSocial"
+                  class="mt-1 block w-full border border-input rounded-lg p-2" />
+                <span v-if="errors.comRazonSocial" class="text-red-600 text-sm">{{ errors.comRazonSocial
+                  }}</span>
+              </div>
+              <div>
+                <label for="comClave" class="block text-sm font-medium">Clave</label>
+                <input v-model="comClave" type="password" id="comClave"
+                  class="mt-1 block w-full border border-input rounded-lg p-2" />
+                <span v-if="errors.comClave" class="text-red-600 text-sm">{{ errors.comClave }}</span>
               </div>
             </div>
           </fieldset>
@@ -91,6 +108,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 import AppAlert from '../components/Alert.vue';
@@ -111,6 +129,8 @@ export default {
       direccion: '',
       correo: '',
       nombreEmpresa: '',
+      comRazonSocial: '', // Valor predeterminado
+      comClave: '', // Valor predeterminado
       errors: {},
       showSuccessAlert: false,
       showErrorAlert: false,
@@ -119,90 +139,93 @@ export default {
     };
   },
   methods: {
+    async checkRucExists(ruc) {
+      try {
+        const { data } = await axios.get('http://172.24.0.11:5001/api/empresas');
+        const rucExists = data.some(empresa => empresa.comDni === ruc);
+        return rucExists;
+      } catch (error) {
+        this.errorMessage = 'Error al verificar el RUC. Inténtelo nuevamente.';
+        this.showErrorAlert = true;
+        return false;
+      }
+    },
     validate() {
       this.errors = {};
-      if (!/^[a-zA-Z]+(?: [a-zA-Z]+)?$/.test(this.nombre)) {
-        this.errors.nombre = 'El nombre debe contener solo letras y un solo espacio entre palabras.';
-      }
-      if (!/^[a-zA-Z]+(?: [a-zA-Z]+)?$/.test(this.apellidos)) {
-        this.errors.apellidos = 'Los apellidos deben contener solo letras y un solo espacio entre palabras.';
-      }
-      if (!/^[a-zA-Z]+(?: [a-zA-Z]+)?$/.test(this.encargado)) {
-        this.errors.encargado = 'El encargado debe contener solo letras y un solo espacio entre palabras.';
-      }
-      if (!this.tipoDni) {
-        this.errors.tipoDni = 'Selecciona un tipo de DNI.';
-      }
-      if (!/^\d{10}$/.test(this.dni)) { // Ajustado a 10 dígitos
-        this.errors.dni = 'El número de DNI debe tener 10 dígitos.';
-      }
-      if (!/^\d{10,15}$/.test(this.telefono)) {
-        this.errors.telefono = 'El teléfono debe tener entre 10 y 15 dígitos.';
-      }
-      if (!this.direccion || /[^a-zA-Z0-9\s]/.test(this.direccion)) { // Permitido espacio en dirección
-        this.errors.direccion = 'La dirección no puede estar vacía y debe contener solo letras y números.';
-      }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.(com|edu\.ec)$/;
-      if (!emailRegex.test(this.correo)) {
-        this.errors.correo = 'El correo electrónico debe ser válido y terminar en @.com o @.edu.ec.';
-      }
-
-      if (!/^[a-zA-Z]+(?: [a-zA-Z]+)?$/.test(this.nombreEmpresa)) {
-        this.errors.nombreEmpresa = 'El nombre de la empresa debe contener solo letras y un solo espacio entre palabras.';
-      }
-
+      // Validaciones de los campos
+      if (!this.nombre) this.errors.nombre = 'El nombre es obligatorio.';
+      if (!this.apellidos) this.errors.apellidos = 'Los apellidos son obligatorios.';
+      if (!this.encargado) this.errors.encargado = 'El encargado es obligatorio.';
+      if (!this.tipoDni) this.errors.tipoDni = 'El tipo de DNI es obligatorio.';
+      if (!this.dni) this.errors.dni = 'El DNI es obligatorio.';
+      if (!this.telefono) this.errors.telefono = 'El teléfono es obligatorio.';
+      if (!this.direccion) this.errors.direccion = 'La dirección es obligatoria.';
+      if (!this.correo) this.errors.correo = 'El correo electrónico es obligatorio.';
+      if (!this.nombreEmpresa) this.errors.nombreEmpresa = 'El nombre de la empresa es obligatorio.';
       return Object.keys(this.errors).length === 0;
+    },
+    async handleSubmit() {
+      if (!this.validate()) {
+        return;
+      }
+
+      const rucExists = await this.checkRucExists(this.dni);
+      if (rucExists) {
+        this.errorMessage = 'Ya existe una empresa con el mismo RUC.';
+        this.showErrorAlert = true;
+        return;
+      }
+
+      const data = {
+        comNombres: this.nombre,
+        comApellidos: this.apellidos,
+        comEncargado: this.encargado,
+        comTipoDni: this.tipoDni,
+        comDni: this.dni,
+        comTelefono: this.telefono,
+        comDireccion: this.direccion,
+        comCorreo: this.correo,
+        comNombreEmpresa: this.nombreEmpresa,
+        comRazonSocial: this.comRazonSocial,
+        comClave: this.comClave,
+        comEstado: 'A' // Establece el estado como "A"
+      };
+
+      try {
+        await axios.post('http://172.24.0.11:5001/api/empresas', data);
+        this.successMessage = 'Empresa registrada exitosamente';
+        this.showSuccessAlert = true;
+
+        // Esperar 5 segundos antes de redirigir
+        setTimeout(() => {
+          this.$router.push('/logemp');
+        }, 5000); // 5000 ms = 5 segundos
+
+        this.limpiarCampos();
+      } catch (error) {
+        console.error('Error al registrar la empresa:', error.response.data);
+        this.errorMessage = 'Error al registrar la empresa. Inténtelo nuevamente.';
+        this.showErrorAlert = true;
+      }
+    },
+    limpiarCampos() {
+      this.nombre = '';
+      this.apellidos = '';
+      this.encargado = '';
+      this.tipoDni = '1'; // RUC predeterminado
+      this.dni = '';
+      this.telefono = '';
+      this.direccion = '';
+      this.correo = '';
+      this.nombreEmpresa = '';
+      this.comRazonSocial = 'a'; // Valor predeterminado
+      this.comClave = '';
+      // Valor predeterminado
     },
     limpiarAlertas() {
       this.showSuccessAlert = false;
       this.showErrorAlert = false;
-    },
-    handleSubmit() {
-      if (this.validate()) {
-        // Check if RUC already exists
-        axios.get(`http://172.24.0.11:5001/api/empresas/ruc/${this.dni}`)
-          .then(response => {
-            if (response.data.exists) {
-              this.errorMessage = 'El RUC ya se encuentra registrado.';
-              this.showErrorAlert = true;
-            } else {
-              // Register new company
-              const data = {
-                comNombres: this.nombre,
-                comApellidos: this.apellidos,
-                comEncargado: this.encargado,
-                comTipoDni: this.tipoDni,
-                comDni: this.dni,
-                comTelefono: this.telefono,
-                comDireccion: this.direccion,
-                comCorreo: this.correo,
-                comEstado: 'A',
-                comNombreEmpresa: this.nombreEmpresa,
-                comUsuario: 0 // Enviado como 0
-              };
-
-              axios.post('http://172.24.0.11:5001/api/empresas', data)
-                .then(() => {
-                  this.successMessage = 'Empresa registrada con éxito.';
-                  this.showSuccessAlert = true;
-                  // Puedes agregar redirección o mensajes aquí
-                })
-                .catch(() => {
-                  this.errorMessage = 'Error al registrar la empresa. Inténtalo de nuevo.';
-                  this.showErrorAlert = true;
-                });
-            }
-          })
-          .catch(() => {
-            this.errorMessage = 'Error al verificar el RUC.';
-            this.showErrorAlert = true;
-          });
-      }
     }
   }
 };
 </script>
-
-<style scoped>
-/* Estilos personalizados aquí */
-</style>

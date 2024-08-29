@@ -33,9 +33,6 @@
             <br>
             <br>
             <router-link to="/publicaciones" class="text-white">Publicaciones</router-link>
-            <br>
-            <br>
-            <router-link to="/dashboard" class="text-white">Dashboard</router-link>
           </div>
         </div>
       </div>
@@ -73,6 +70,7 @@
                 <th class="py-2 px-4 border-b">Dirección</th>
                 <th class="py-2 px-4 border-b">Correo</th>
                 <th class="py-2 px-4 border-b">Nombre Empresa</th>
+                <th class="py-2 px-4 border-b">Clave</th>
                 <th class="py-2 px-4 border-b">Estado</th>
               </tr>
             </thead>
@@ -81,7 +79,7 @@
                 <td class="py-2 px-4 flex space-x-2">
                   <router-link :to="`/editar-empresa/${empresa.comId}`"
                     class="bg-yellow-500 text-white p-2 rounded">✏️</router-link>
-                  <button @click="eliminarEmpresa(empresa.comId)" class="bg-red-500 text-white p-2 rounded">🗑️</button>
+                  <button @click="abrirModalEliminar(empresa.comId)" class="bg-red-500 text-white p-2 rounded">🗑️</button>
                 </td>
                 <td class="py-2 px-4">{{ empresa.comNombres }}</td>
                 <td class="py-2 px-4">{{ empresa.comApellidos }}</td>
@@ -91,10 +89,23 @@
                 <td class="py-2 px-4">{{ empresa.comDireccion }}</td>
                 <td class="py-2 px-4">{{ empresa.comCorreo }}</td>
                 <td class="py-2 px-4">{{ empresa.comNombreEmpresa }}</td>
+                <td class="py-2 px-4">{{ empresa.comClave }}</td>
                 <td class="py-2 px-4">{{ empresa.comEstado === 'A' ? '✔️' : '❌' }}</td>
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div v-if="mostrarModalEliminar" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div class="bg-white p-6 rounded shadow-lg">
+        <h3 class="text-xl font-bold mb-4">Confirmar eliminación</h3>
+        <p>¿Estás seguro que deseas eliminar esta empresa?</p>
+        <div class="mt-4 flex justify-end space-x-2">
+          <button @click="cancelarEliminar" class="bg-gray-500 text-white py-2 px-4 rounded">Cancelar</button>
+          <button @click="confirmarEliminar" class="bg-red-500 text-white py-2 px-4 rounded">Eliminar</button>
         </div>
       </div>
     </div>
@@ -113,7 +124,9 @@ export default {
       filtroNombre: '',
       filtroDireccion: '',
       filtroActivo: '',
-      usuUser: ''
+      usuUser: '',
+      mostrarModalEliminar: false,
+      empresaIdAEliminar: null
     };
   },
   mounted() {
@@ -163,8 +176,28 @@ export default {
         console.error('Error al cargar los datos de empresas:', error);
       }
     },
-    obtenerEstado(estado) {
-      return estado === 'A' ? 'Activo' : 'Inactivo';
+    abrirModalEliminar(comId) {
+      this.empresaIdAEliminar = comId;
+      this.mostrarModalEliminar = true;
+    },
+    cancelarEliminar() {
+      this.mostrarModalEliminar = false;
+      this.empresaIdAEliminar = null;
+    },
+    async confirmarEliminar() {
+      try {
+        const response = await axios.post(`http://172.24.0.11:5001/api/empresas/${this.empresaIdAEliminar}`, {
+          comEstado: 'I'
+        });
+        if (response.status === 200) {
+          this.empresas = this.empresas.filter(empresa => empresa.comId !== this.empresaIdAEliminar);
+          this.cancelarEliminar();
+        } else {
+          console.error('Error al eliminar la empresa:', response);
+        }
+      } catch (error) {
+        console.error('Error al eliminar la empresa:', error);
+      }
     },
     limpiarFiltros() {
       this.filtroNombre = '';
@@ -174,32 +207,7 @@ export default {
     cerrarSesion() {
       localStorage.removeItem('nombreUsuario');
       this.$router.push('/login');
-    },
-    async eliminarEmpresa(comId) {
-      try {
-        const response = await axios.post(`http://172.24.0.11:5001/api/empresas/${comId}`, {
-          comEstado: 'I'
-        });
-        if (response.status === 200) {
-          this.empresas = this.empresas.map(empresa =>
-            empresa.comId === comId ? { ...empresa, comEstado: 'I' } : empresa
-          );
-        } else {
-          console.error('Error al actualizar el estado de la empresa.');
-        }
-      } catch (error) {
-        console.error('Error al eliminar la empresa:', error);
-      }
     }
-
-
   }
 };
 </script>
-
-<style>
-.user-info {
-  display: flex;
-  align-items: center;
-}
-</style>

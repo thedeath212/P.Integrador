@@ -11,7 +11,8 @@
           <h2 class="text-sm font-semibold">FILTRAR LA LISTA</h2>
           <div class="mt-4">
             <label class="block text-sm">Título</label>
-            <input v-model="filtroTitulo" type="text" class="w-full mt-1 p-2 bg-zinc-700 border border-zinc-600 rounded">
+            <input v-model="filtroTitulo" type="text"
+              class="w-full mt-1 p-2 bg-zinc-700 border border-zinc-600 rounded">
           </div>
           <div class="mt-4">
             <label class="block text-sm">Tema</label>
@@ -34,9 +35,6 @@
             <br>
             <br>
             <router-link to="/usuarios" class="text-white">Usuarios</router-link>
-            <br>
-            <br>
-            <router-link to="/dashboard" class="text-white">Dashboard</router-link>
           </div>
         </div>
       </div>
@@ -51,8 +49,8 @@
       <!-- Botón para agregar nueva publicación -->
       <div class="bg-white p-4 flex justify-between items-center">
         <div class="flex space-x-2">
-          <router-link :to="{ name: 'CrearP', params: { usuId: usuId } }" class="bg-blue-500 text-white py-2 px-4 rounded">AGREGAR NUEVO</router-link>
-
+          <router-link :to="{ name: 'CrearP', params: { usuId: usuId } }"
+            class="bg-blue-500 text-white py-2 px-4 rounded">AGREGAR NUEVO</router-link>
         </div>
         <div class="flex items-center space-x-4">
           <div class="user-info">
@@ -65,24 +63,41 @@
       <!-- Lista de publicaciones -->
       <div class="flex-grow overflow-auto">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-          <div v-for="publicacion in publicacionesFiltradas" :key="publicacion.pubId" class="bg-white p-4 rounded-lg border border-gray-200 mb-4 shadow-md">
+          <div v-for="publicacion in publicacionesFiltradas" :key="publicacion.pubId"
+            class="bg-white p-4 rounded-lg border border-gray-200 mb-4 shadow-md">
             <h2 class="text-lg font-bold mb-2">{{ publicacion.pubTitulo }}</h2>
             <p class="text-gray-600 mb-4">{{ publicacion.pubDescripcion }}</p>
             <p><strong>Tema:</strong> {{ publicacion.pubTema }}</p>
             <p><strong>Rol:</strong> {{ getRol(publicacion.pubRol) }}</p>
             <p><strong>Usuario:</strong> {{ getNombreUsuario(publicacion.usuId) }}</p>
             <p><strong>Salario:</strong> {{ publicacion.pubSalario }}</p>
+            <p><strong>Fecha:</strong> {{ publicacion.pubFecha }}</p>
             <p><strong>Estado:</strong> {{ publicacion.pubEstado }}</p>
             <div class="mt-4 flex justify-end space-x-2">
-              <router-link :to="'/editar-publicacion/' + publicacion.pubId" class="bg-yellow-500 text-white py-2 px-4 rounded">Editar</router-link>
-              <button @click="eliminarPublicacion(publicacion.pubId)" class="bg-red-500 text-white py-2 px-4 rounded">Eliminar</button>
+              <router-link :to="'/editar-publicacion/' + publicacion.pubId"
+                class="bg-yellow-500 text-white py-2 px-4 rounded">Editar</router-link>
+              <button @click="confirmarEliminacion(publicacion.pubId)"
+                class="bg-red-500 text-white py-2 px-4 rounded">Eliminar</button>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Modal de confirmación de eliminación -->
+    <div v-if="mostrarModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-lg font-bold mb-4">Confirmar Eliminación</h3>
+        <p class="mb-4">¿Estás seguro de que deseas eliminar esta publicación?</p>
+        <div class="flex justify-end space-x-2">
+          <button @click="eliminarPublicacionConfirmado" class="bg-red-500 text-white py-2 px-4 rounded">Eliminar</button>
+          <button @click="cancelarEliminacion" class="bg-gray-500 text-white py-2 px-4 rounded">Cancelar</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -95,15 +110,17 @@ export default {
       filtroTitulo: '',
       filtroTema: '',
       filtroActivo: '',
-      usuUser: '', // Inicializa usuUser aquí
-      usuId: '', // Inicializa usuId aquí
-      usuarios: []
+      usuUser: '',
+      usuId: '',
+      usuarios: [],
+      idPublicacionAEliminar: null, // ID de la publicación a eliminar
+      mostrarModal: false, // Controlar la visibilidad del modal
     };
   },
   mounted() {
     this.fetchPublicaciones();
-    this.usuUser = localStorage.getItem('nombreUsuario') || ''; // Asigna el valor de nombre de usuario
-    this.usuId = localStorage.getItem('usuId') || ''; // Asigna el valor de usuId
+    this.usuUser = localStorage.getItem('nombreUsuario') || '';
+    this.usuId = localStorage.getItem('usuId') || '';
     this.fetchUsuarios();
   },
   computed: {
@@ -155,17 +172,27 @@ export default {
     getRol(rolId) {
       return rolId === 1 ? 'Usuario' : rolId === 2 ? 'Empresa' : 'Desconocido';
     },
-    async eliminarPublicacion(pubId) {
+    confirmarEliminacion(pubId) {
+      this.idPublicacionAEliminar = pubId;
+      this.mostrarModal = true;
+    },
+    async eliminarPublicacionConfirmado() {
       try {
-        const response = await axios.post(`http://172.24.0.11:5001/api/publicaciones/${pubId}`, { pubEstado: 'I' });
+        const response = await axios.post(`http://172.24.0.11:5001/api/publicaciones/${this.idPublicacionAEliminar}`, { pubEstado: 'I' });
         if (response.status === 200) {
-          this.publicaciones = this.publicaciones.filter(publicacion => publicacion.pubId !== pubId);
+          this.publicaciones = this.publicaciones.filter(publicacion => publicacion.pubId !== this.idPublicacionAEliminar);
+          this.mostrarModal = false; // Ocultar modal
+          this.idPublicacionAEliminar = null; // Limpiar ID de publicación
         } else {
           console.error('Error al eliminar la publicación.');
         }
       } catch (error) {
         console.error('Error al eliminar la publicación:', error);
       }
+    },
+    cancelarEliminacion() {
+      this.mostrarModal = false; // Ocultar modal
+      this.idPublicacionAEliminar = null; // Limpiar ID de publicación
     },
     limpiarFiltros() {
       this.filtroTitulo = '';
@@ -179,6 +206,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 /* Estilos específicos para este componente */

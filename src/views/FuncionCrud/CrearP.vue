@@ -75,7 +75,15 @@
                                 required />
                             <span v-if="errors.pubSalario" class="text-red-500 text-sm">{{ errors.pubSalario }}</span>
                         </div>
-                        
+
+                        <!-- Campo: Fecha -->
+                        <div>
+                            <label for="pubFecha" class="block text-sm font-medium text-muted-foreground">Fecha:</label>
+                            <input id="pubFecha" v-model="form.pubFecha" type="date"
+                                class="mt-1 block w-full rounded-md border border-input bg-background text-foreground p-2 dark:bg-background-dark dark:text-foreground-dark"
+                                required />
+                            <span v-if="errors.pubFecha" class="text-red-500 text-sm">{{ errors.pubFecha }}</span>
+                        </div>
 
                         <!-- Botón de Agregar Publicación -->
                         <button type="submit"
@@ -112,6 +120,7 @@ export default {
                 pubDescripcion: '',
                 pubRol: '',
                 pubSalario: null,
+                pubFecha: '', // Campo de fecha añadido
                 usuId: 2, // usuId quemado como 2
                 pubEstado: 'A' // Estado quemado 'A'
             },
@@ -120,7 +129,8 @@ export default {
                 pubTema: '',
                 pubDescripcion: '',
                 pubRol: '',
-                pubSalario: ''
+                pubSalario: '',
+                pubFecha: '' // Error para campo de fecha añadido
             },
             showSuccessAlert: false,
             showErrorAlert: false,
@@ -148,6 +158,9 @@ export default {
             if (!this.form.pubSalario) {
                 this.errors.pubSalario = 'Debe ingresar el salario.';
             }
+            if (!this.form.pubFecha) {
+                this.errors.pubFecha = 'Debe ingresar la fecha.';
+            }
             if (this.hasErrors()) {
                 this.showErrorAlert = true;
                 return;
@@ -165,7 +178,8 @@ export default {
                     pubDescripcion: this.form.pubDescripcion,
                     usuId: this.form.usuId,
                     pubSalario: this.form.pubSalario,
-                    pubEstado: 'A' 
+                    pubFecha: this.form.pubFecha, // Enviar pubFecha
+                    pubEstado: 'A'
                 });
                 this.showSuccessAlert = true;
                 setTimeout(() => {
@@ -181,13 +195,13 @@ export default {
             }
         },
 
-
         resetErrors() {
             this.errors.pubTitulo = '';
             this.errors.pubTema = '';
             this.errors.pubDescripcion = '';
             this.errors.pubRol = '';
             this.errors.pubSalario = '';
+            this.errors.pubFecha = ''; // Limpiar errores de fecha
         },
 
         hasErrors() {
@@ -196,27 +210,21 @@ export default {
                 this.errors.pubTema ||
                 this.errors.pubDescripcion ||
                 this.errors.pubRol ||
-                this.errors.pubSalario
+                this.errors.pubSalario ||
+                this.errors.pubFecha
             );
         },
 
         validateText(event) {
-            const pattern = /[a-zA-Z\s]/;
-            if (!pattern.test(String.fromCharCode(event.keyCode))) {
+            if (!/[a-zA-Z\s]/.test(event.key)) {
                 event.preventDefault();
             }
         },
 
         validateNumber(event) {
-            const pattern = /[0-9]/;
-            if (!pattern.test(String.fromCharCode(event.keyCode))) {
+            if (!/[0-9]/.test(event.key)) {
                 event.preventDefault();
             }
-        },
-
-        limpiarAlertas() {
-            this.showSuccessAlert = false;
-            this.showErrorAlert = false;
         },
 
         limpiarFormulario() {
@@ -225,21 +233,30 @@ export default {
             this.form.pubDescripcion = '';
             this.form.pubRol = '';
             this.form.pubSalario = null;
+            this.form.pubFecha = ''; // Limpiar campo de fecha
+        },
+
+        limpiarAlertas() {
+            this.showSuccessAlert = false;
+            this.showErrorAlert = false;
         }
     }
 };
 </script>
 
 <style scoped>
+/* Estilos para el formulario y otros elementos */
 .form-container {
+    margin: auto;
+    padding: 20px;
     max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
 }
 
-@media (max-width: 767px) {
-    .form-container {
-        padding: 0.5rem;
-    }
+.bg-card {
+    background-color: #f9f9f9;
+}
+
+.text-card-foreground {
+    color: #333;
 }
 </style>

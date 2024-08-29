@@ -8,7 +8,6 @@ import Login from './views/Login.vue';
 import UsuarioPage from './views/Usuario.vue';
 import EmpresasList from './views/CrudViews/Empresas.vue';
 import PublicacionesList from './views/CrudViews/Publicaciones.vue';
-import DashboardPage from './views/CrudViews/Dashboard.vue';
 import EditarPage from './views/FuncionCrud/EditarU.vue';
 import CrearPage from './views/FuncionCrud/Crear.vue';
 import LoginEmp from './views/LoginEmp.vue';
@@ -126,13 +125,6 @@ const routes = [
     meta: { requiresAuth: true, allowedRoles: [1] }
   },
 
-  // Sección Dashboard
-  {
-    path: '/dashboard',
-    name: 'DashboardPage',
-    component: DashboardPage,
-    meta: { requiresAuth: true, allowedRoles: [1] }
-  }
 ];
 
 // Creación del router
@@ -140,23 +132,26 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 });
-
-// Middleware de autenticación
 router.beforeEach((to, from, next) => {
   const isAuthenticated = !!localStorage.getItem('authToken');
   const userRole = parseInt(localStorage.getItem('userRole'), 10);
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!isAuthenticated) {
+      // Usuario no autenticado, redirigir al login
       next('/login');
     } else if (to.meta.allowedRoles && !to.meta.allowedRoles.includes(userRole)) {
-      next('/user'); 
+      // Usuario autenticado pero sin permisos, redirigir a una página específica
+      next('/user');
     } else {
+      // Usuario autenticado y con los permisos adecuados
       next();
     }
   } else {
+    // Ruta pública o sin restricción
     next();
   }
 });
+
 
 export default router;

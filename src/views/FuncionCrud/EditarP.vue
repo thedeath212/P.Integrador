@@ -74,6 +74,16 @@
                             <span v-if="!form.pubSalario" class="text-red-500 text-sm">El salario es requerido</span>
                         </div>
 
+                        <!-- Campo: Fecha -->
+                        <div>
+                            <label for="pubFecha" class="block text-sm font-medium text-muted-foreground">Fecha:</label>
+                            <input id="pubFecha" v-model="form.pubFecha" type="date"
+                                class="mt-1 block w-full rounded-md border border-input bg-background text-foreground p-2 dark:bg-background-dark dark:text-foreground-dark"
+                                required />
+                            <span v-if="!form.pubFecha" class="text-red-500 text-sm">La fecha es requerida</span>
+                        </div>
+
+
                         <!-- Botón de Actualizar Publicación -->
                         <button type="submit"
                             class="bg-primary text-primary-foreground hover:bg-primary/80 w-full py-2 rounded-md dark:bg-primary-dark dark:text-primary-dark-foreground transition-colors duration-300">Actualizar
@@ -109,7 +119,8 @@ export default {
                 pubTema: '',
                 pubDescripcion: '',
                 pubRol: '',
-                pubSalario: ''
+                pubSalario: '',
+                pubFecha: '' // Nuevo campo
             },
             showSuccessAlert: false,
             showErrorAlert: false,
@@ -117,6 +128,7 @@ export default {
             errorMessage: ''
         };
     },
+
     props: ['id'], // Asegúrate de recibir el id como prop
 
     mounted() {
@@ -134,7 +146,7 @@ export default {
         },
         async validarYActualizar() {
             // Validación de campos requeridos
-            if (!this.form.pubTitulo || !this.form.pubTema || !this.form.pubDescripcion || !this.form.pubRol || !this.form.pubSalario) {
+            if (!this.form.pubTitulo || !this.form.pubTema || !this.form.pubDescripcion || !this.form.pubRol || !this.form.pubSalario || !this.form.pubFecha) {
                 this.showErrorAlert = true;
                 this.errorMessage = 'Por favor complete todos los campos.';
                 return;
@@ -147,7 +159,8 @@ export default {
                     pubTema: this.form.pubTema,
                     pubDescripcion: this.form.pubDescripcion,
                     pubRol: this.form.pubRol,
-                    pubSalario: this.form.pubSalario
+                    pubSalario: this.form.pubSalario,
+                    pubFecha: this.form.pubFecha // Nuevo campo
                 };
 
                 const response = await axios.put(`http://172.24.0.11:5001/api/publicaciones/${this.id}`, formData);

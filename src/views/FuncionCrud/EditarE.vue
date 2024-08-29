@@ -72,6 +72,19 @@
                                     class="mt-1 block w-full border border-input rounded-lg p-2" />
                                 <span v-if="errors.nombreEmpresa" class="text-red-600 text-sm">{{ errors.nombreEmpresa }}</span>
                             </div>
+                            <!-- Nuevos campos -->
+                            <div>
+                                <label for="razonSocial" class="block text-sm font-medium">Razón Social</label>
+                                <input v-model="razonSocial" type="text" id="razonSocial"
+                                    class="mt-1 block w-full border border-input rounded-lg p-2" />
+                                <span v-if="errors.razonSocial" class="text-red-600 text-sm">{{ errors.razonSocial }}</span>
+                            </div>
+                            <div>
+                                <label for="clave" class="block text-sm font-medium">Clave</label>
+                                <input v-model="clave" type="text" id="clave"
+                                    class="mt-1 block w-full border border-input rounded-lg p-2" />
+                                <span v-if="errors.clave" class="text-red-600 text-sm">{{ errors.clave }}</span>
+                            </div>
                         </div>
                     </fieldset>
                     <div class="space-y-4">
@@ -113,6 +126,8 @@ export default {
             direccion: '',
             correo: '',
             nombreEmpresa: '',
+            razonSocial: '',  // Nuevo campo
+            clave: '',        // Nuevo campo
             errors: {},
             showSuccessAlert: false,
             showErrorAlert: false,
@@ -138,6 +153,8 @@ export default {
                     this.direccion = empresa.comDireccion;
                     this.correo = empresa.comCorreo;
                     this.nombreEmpresa = empresa.comNombreEmpresa;
+                    this.razonSocial = empresa.comRazonSocial; // Nuevo campo
+                    this.clave = empresa.comClave;             // Nuevo campo
                 })
                 .catch(() => {
                     this.errorMessage = 'Error al cargar los datos de la empresa.';
@@ -152,27 +169,31 @@ export default {
             if (!/^[a-zA-Z]+(?: [a-zA-Z]+)?$/.test(this.apellidos)) {
                 this.errors.apellidos = 'Los apellidos deben contener solo letras y un solo espacio entre palabras.';
             }
-            if (!/^[a-zA-Z]+(?: [a-zA-Z]+)?$/.test(this.encargado)) {
-                this.errors.encargado = 'El encargado debe contener solo letras y un solo espacio entre palabras.';
+            if (!this.encargado) {
+                this.errors.encargado = 'El nombre del encargado es obligatorio.';
             }
-            if (!this.tipoDni) {
-                this.errors.tipoDni = 'Selecciona un tipo de DNI.';
+            if (!this.dni) {
+                this.errors.dni = 'El número de DNI es obligatorio.';
             }
-            if (!/^\d{10}$/.test(this.dni)) {
-                this.errors.dni = 'El número de DNI debe tener 10 dígitos.';
-            }
-            if (!/^\d{10}$/.test(this.telefono)) {
-                this.errors.telefono = 'El teléfono debe tener 10 dígitos.';
+            if (!this.telefono) {
+                this.errors.telefono = 'El teléfono es obligatorio.';
             }
             if (!this.direccion) {
                 this.errors.direccion = 'La dirección es obligatoria.';
             }
             if (!this.correo) {
-                this.errors.correo = 'El correo es obligatorio.';
+                this.errors.correo = 'El correo electrónico es obligatorio.';
             }
             if (!this.nombreEmpresa) {
                 this.errors.nombreEmpresa = 'El nombre de la empresa es obligatorio.';
             }
+            if (!this.razonSocial) {
+                this.errors.razonSocial = 'La razón social es obligatoria.';
+            }
+            if (!this.clave) {
+                this.errors.clave = 'La clave es obligatoria.';
+            }
+
             return Object.keys(this.errors).length === 0;
         },
         handleUpdate() {
@@ -188,14 +209,18 @@ export default {
                 comTelefono: this.telefono,
                 comDireccion: this.direccion,
                 comCorreo: this.correo,
-                comEstado: 'A', // Estado activo, modificar si necesario
-                comNombreEmpresa: this.nombreEmpresa
+                comEstado: 'A',
+                comNombreEmpresa: this.nombreEmpresa,
+                comRazonSocial: this.razonSocial, // Nuevo campo
+                comClave: this.clave             // Nuevo campo
             };
             axios.put(`http://172.24.0.11:5001/api/empresas/${this.id}`, datos)
                 .then(() => {
                     this.successMessage = 'Empresa actualizada exitosamente.';
                     this.showSuccessAlert = true;
-                    this.$router.push('/empresas'); // Redirigir a la lista de empresas
+                    setTimeout(() => {
+                        this.$router.push('/empresas'); // Redirigir a la lista de empresas después de 5 segundos
+                    }, 5000);
                 })
                 .catch(() => {
                     this.errorMessage = 'Error al actualizar la empresa.';
@@ -209,7 +234,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-/* Estilos personalizados si es necesario */
-</style>

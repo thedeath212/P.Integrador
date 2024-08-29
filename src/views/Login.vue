@@ -43,6 +43,8 @@
             </div>
           </div>
           <p v-if="showEmptyFieldsError" class="text-red-500">Por favor completa todos los campos.</p>
+          <p v-if="showInactiveUserError" class="text-red-500">Lo sentimos, su usuario está inactivo. Contáctese con
+            administración.</p>
 
           <button type="submit" class="w-full p-2 bg-zinc-500 text-white rounded-lg hover:bg-zinc-600">Ingresar</button>
         </form>
@@ -81,8 +83,9 @@ export default {
       clave: '',
       passwordVisible: false,
       showEmptyFieldsError: false,
-      showSuccessAlert: false,
       showErrorAlert: false,
+      showSuccessAlert: false,
+      showInactiveUserError: false,
       successMessage: '',
       errorMessage: ''
     };
@@ -119,16 +122,28 @@ export default {
         });
 
         if (!response.ok) {
-          throw new Error('Credenciales inválidas');
+          const errorText = await response.text();
+          throw new Error(errorText || 'Credenciales inválidas');
         }
 
-        const userData = await response.json();
-        const { usuCorreo, usuClave, usuRol, token } = userData;
+        let userData;
+        try {
+          userData = await response.json();
+        } catch (e) {
+          throw new Error('Usuario o contraseña incorrecta');
+        }
+
+        const { usuCorreo, usuClave, usuRol, token, usuEstado } = userData;
 
         if (this.correo === usuCorreo && this.clave === usuClave) {
+          if (usuEstado === 'I') {
+            this.showInactiveUserError = true;
+            return;
+          }
+
           localStorage.setItem('authToken', token);
           localStorage.setItem('userCorreo', this.correo);
-          localStorage.setItem('userRole', usuRol); // Almacenar el rol del usuario
+          localStorage.setItem('userRole', usuRol);
           await this.obtenerNombreUsuario(this.correo);
 
           if (usuRol === 1) {
@@ -153,7 +168,11 @@ export default {
         }
       } catch (error) {
         console.error('Error al iniciar sesión:', error.message);
-        this.errorMessage = error.message;
+        if (error.message.includes('Credenciales inválidas')) {
+          this.errorMessage = 'Usuario o contraseña incorrectos';
+        } else {
+          this.errorMessage = error.message;
+        }
         this.showErrorAlert = true;
         setTimeout(() => {
           this.showErrorAlert = false;

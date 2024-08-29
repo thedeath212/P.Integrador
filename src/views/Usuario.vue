@@ -83,32 +83,33 @@
           <div v-if="publicaciones.length === 0" class="text-center text-muted-foreground mt-4">
             No hay publicaciones disponibles.
           </div>
-          <div v-else class="mt-4 grid grid-cols-1 gap-4">
-            <div v-for="publicacion in publicaciones" :key="publicacion.pubId"
-              class="bg-gray-100 p-4 rounded-lg shadow-md">
+          <div v-else class="mt-4 max-h-96 overflow-y-auto">
+            <div v-for="publicacion in publicaciones.slice(0, 5)" :key="publicacion.pubId"
+              class="bg-gray-100 p-4 rounded-lg shadow-md mb-4">
               <h4 class="text-lg font-semibold text-blue-800">{{ publicacion.pubTitulo }}</h4>
               <p class="text-md mt-2 text-gray-700">{{ publicacion.pubTema }}</p>
               <p class="mt-2">{{ publicacion.pubDescripcion }}</p>
               <p class="mt-2 font-bold">Salario: ${{ publicacion.pubSalario }}</p>
+              <p class="mt-2 text-gray-600">Fecha: {{ new Date(publicacion.pubFecha).toLocaleDateString() }}</p>
             </div>
           </div>
         </section>
 
         <!-- Sección ExperienciasF -->
-
+        <!-- Sección de Experiencias -->
         <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-blue-800">Experiencias</h3>
             <button @click="openModal"
               class="bg-primary text-primary-foreground p-2 rounded-md hover:bg-primary/80 transition">
               Añadir Experiencia
             </button>
           </div>
-          <div v-if="experiencias.length === 0" class="text-center text-muted-foreground mt-4">
+          <div v-if="experiencias.length === 0" class="text-center text-muted-foreground">
             No hay experiencias disponibles.
           </div>
           <div v-else>
-            <ul class="mt-4 space-y-4">
+            <ul class="space-y-4">
               <li v-for="(exp, index) in experiencias" :key="index"
                 class="bg-gray-100 p-4 rounded-md shadow-sm flex items-start justify-between">
                 <div class="flex-grow">
@@ -134,6 +135,43 @@
             </ul>
           </div>
         </section>
+        <!-- Sección de Estudios -->
+        <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition mt-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-blue-800">Estudios</h3>
+            <button @click="openAddStudyModal"
+              class="bg-primary text-primary-foreground p-2 rounded-md hover:bg-primary/80 transition">
+              Añadir Estudio
+            </button>
+          </div>
+          <div v-if="estudios.length === 0" class="text-center text-muted-foreground">
+            No hay estudios disponibles.
+          </div>
+          <div v-else>
+            <ul class="space-y-4">
+              <li v-for="(estudio, index) in estudios" :key="index"
+                class="bg-gray-100 p-4 rounded-md shadow-sm flex items-start justify-between">
+                <div class="flex-grow">
+                  <h4 class="text-md font-semibold text-blue-700">{{ estudio.estTitulo }}</h4>
+                  <p class="text-sm text-gray-600"><strong>Institución:</strong> {{ estudio.esInstitucion }}</p>
+                  <p class="text-sm text-gray-600"><strong>Descripción:</strong> {{ estudio.esDescripcion }}</p>
+                </div>
+                <div class="flex space-x-2">
+                  <button @click="openEditStudyModal(estudio)"
+                    class="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition flex items-center justify-center">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button @click="openDeleteStudyModal(estudio)"
+                    class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition flex items-center justify-center">
+                    <i class="fas fa-trash"></i>
+                  </button>
+
+                </div>
+              </li>
+            </ul>
+          </div>
+        </section>
+
       </main>
     </div>
     <!-- Modal para añadir experiencia -->
@@ -246,6 +284,76 @@
       </div>
     </transition>
   </div>
+
+  <transition name="fade">
+    <div v-if="showAddStudyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h3 class="text-lg font-semibold text-blue-800 mb-4">Añadir Estudio</h3>
+        <form @submit.prevent="añadirEstudio">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-gray-700">Descripción:</label>
+              <textarea v-model="nuevoEstudio.esDescripcion" class="border rounded-md p-2 w-full" required></textarea>
+            </div>
+            <div>
+              <label class="block text-gray-700">Institución:</label>
+              <input v-model="nuevoEstudio.esInstitucion" type="text" class="border rounded-md p-2 w-full" required>
+            </div>
+            <div class="flex justify-end space-x-4">
+              <button type="button" @click="closeAddStudyModal"
+                class="bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600 transition">Cancelar</button>
+              <button type="submit"
+                class="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition">Guardar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </transition>
+
+  <!-- Modal para editar estudio -->
+  <transition name="fade">
+    <div v-if="showEditStudyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h3 class="text-lg font-semibold text-blue-800 mb-4">Editar Estudio</h3>
+        <form @submit.prevent="editarEstudio">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-gray-700">Descripción:</label>
+              <textarea v-model="estudioEditado.esDescripcion" class="border rounded-md p-2 w-full" required></textarea>
+            </div>
+            <div>
+              <label class="block text-gray-700">Institución:</label>
+              <input v-model="estudioEditado.esInstitucion" type="text" class="border rounded-md p-2 w-full" required>
+            </div>
+            <div class="flex justify-end space-x-4">
+              <button type="button" @click="closeEditStudyModal"
+                class="bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600 transition">Cancelar</button>
+              <button type="submit"
+                class="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition">Guardar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </transition>
+
+  <!-- Modal para confirmar eliminación -->
+  <transition name="fade">
+    <div v-if="deleteModalVisible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h3 class="text-lg font-semibold text-blue-800 mb-4">Confirmar Eliminación</h3>
+        <p>¿Estás seguro de que deseas eliminar esta experiencia?</p>
+        <div class="flex justify-end space-x-4 mt-4">
+          <button type="button" @click="closeDeleteModal"
+            class="bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600 transition">Cancelar</button>
+          <button @click="eliminarEstudio"
+            class="bg-red-500 text-white p-2 rounded-md hover:bg-red-600 transition">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </transition>
+
 </template>
 
 <script>
@@ -265,10 +373,15 @@ export default {
       editModalVisible: false,
       deleteModalVisible: false,
       modalVisible: false,
+      showAddStudyModal: false,
+      showEditStudyModal: false,
+      showDeleteStudyModal: false,
+      selectedStudy: null,
       experiencias: [],
       publicaciones: [],
+      estudios: [],
       nuevaExperiencia: {
-        expId: null,
+        expId: 0,
         expUsuario: null,
         expDescripcion: '',
         expPuesto: '',
@@ -277,7 +390,25 @@ export default {
         expEstado: 'A',
         expTitulo: '',
       },
-      experienciaEditada: {},
+      experienciaEditada: {
+        expId: 0,
+        expTitulo: '',
+        expPuesto: '',
+        expDescripcion: '',
+        expFechaInicio: '',
+        expFechaFinalizacion: ''
+      },
+      nuevoEstudio: {
+        esDescripcion: '',
+        esInstitucion: '',
+        esEstado: 'A' // Por defecto puede ser 'A' para activo
+      },
+      estudioEditado: {
+        esId: 0,
+        esDescripcion: '',
+        esInstitucion: '',
+        esEstado: 'A'
+      },
       usuarioDatos: {},
       uploadError: '',
       showSuccessAlert: false,
@@ -290,10 +421,24 @@ export default {
     this.obtenerDatosUsuario();
     this.obtenerPublicaciones();
     this.obtenerExperiencias();
+    this.obtenerEstudios();
+    this.fetchEstudios();
   },
   methods: {
     toggleMenu() {
       this.menuVisible = !this.menuVisible;
+
+    },
+    buscarEmpleo() {
+      // Obtiene todas las publicaciones primero
+      this.obtenerPublicaciones().then(() => {
+        // Filtra las publicaciones según el sueldo y el título
+        this.publicaciones = this.publicaciones.filter(publicacion => {
+          const cumpleSueldo = this.searchSalary ? publicacion.pubSalario >= this.searchSalary : true;
+          const cumpleTitulo = this.searchTitle ? publicacion.pubTitulo.toLowerCase().includes(this.searchTitle.toLowerCase()) : true;
+          return cumpleSueldo && cumpleTitulo;
+        });
+      });
     },
     async obtenerDatosUsuario() {
       try {
@@ -327,7 +472,8 @@ export default {
       try {
         const response = await axios.get('http://172.24.0.11:5001/api/publicaciones');
         if (response.status === 200) {
-          this.publicaciones = response.data;
+          // Filtrar publicaciones que tienen pubEstado igual a "A"
+          this.publicaciones = response.data.filter(publicacion => publicacion.pubEstado === 'A');
         }
       } catch (error) {
         console.error('Error al obtener publicaciones:', error);
@@ -339,6 +485,14 @@ export default {
         '2': 'Femenino'
       };
       return sexos[sexo] || 'No especificado';
+    },
+    async fetchEstudios() {
+      try {
+        const response = await axios.get('http://172.24.0.11:5001/api/estudios');
+        this.estudios = response.data;
+      } catch (error) {
+        console.error('Error fetching estudios:', error);
+      }
     },
     async obtenerExperiencias() {
       try {
@@ -406,7 +560,47 @@ export default {
         console.error('Error al subir el archivo:', error);
       }
     },
+    async obtenerEstudios() {
+      try {
+        const correo = localStorage.getItem('userCorreo');
+        if (!correo) {
+          throw new Error('Correo del usuario no encontrado en el almacenamiento local');
+        }
 
+        // Obtener los datos del usuario para encontrar el usuario logueado
+        const responseUsuario = await fetch('http://172.24.0.11:5001/api/usuario');
+        if (!responseUsuario.ok) {
+          throw new Error('Error al obtener los datos del usuario');
+        }
+
+        const usuarios = await responseUsuario.json();
+        const usuario = usuarios.find(user => user.usuCorreo === correo);
+
+        if (!usuario) {
+          throw new Error('Usuario no encontrado');
+        }
+
+        const usuarioId = usuario.usuId;
+
+        // Obtener todos los estudios
+        const responseEstudios = await axios.get('http://172.24.0.11:5001/api/estudios');
+
+        if (responseEstudios.status === 200) {
+          // Filtrar estudios del usuario y mostrar solo los que están activos
+          this.estudios = responseEstudios.data
+            .filter(estudio => estudio.usuId === usuarioId && estudio.esEstado === 'A');
+        }
+      } catch (error) {
+        console.error('Error al obtener estudios:', error);
+      }
+    },
+
+    openAddStudyModal() {
+      this.showAddStudyModal = true;
+    },
+    closeAddStudyModal() {
+      this.showAddStudyModal = false;
+    },
     openModal() {
       this.modalVisible = true;
     },
@@ -426,6 +620,68 @@ export default {
     },
     closeDeleteModal() {
       this.deleteModalVisible = false;
+    },
+    openEditStudyModal(estudio) {
+      this.estudioEditado = { ...estudio }; // Crea una copia del estudio para editar
+      this.showEditStudyModal = true; // Muestra el modal
+    },
+    closeEditStudyModal() {
+      this.showEditStudyModal = false;
+    },
+    openDeleteStudyModal(estudio) {
+      this.estudioAEliminar = estudio; // Guarda el estudio a eliminar
+      this.deleteModalVisible = true;
+    },
+
+    async añadirEstudio() {
+      try {
+        // Asegúrate de que el `usuId` esté correctamente asignado antes de enviar la solicitud
+        this.nuevoEstudio.usuId = this.usuarioDatos.usuId;
+
+        await axios.post('http://172.24.0.11:5001/api/estudios', this.nuevoEstudio);
+        this.successMessage = 'Estudio añadido exitosamente.';
+        this.showSuccessAlert = true;
+        this.nuevoEstudio = {}; // Limpiar el formulario
+        this.obtenerEstudios(); // Actualizar la lista de estudios
+        this.closeModal(); // Cerrar el modal
+      } catch (error) {
+        console.error('Error al añadir estudio:', error);
+      }
+    },
+    async editarEstudio() {
+      try {
+        await axios.put(`http://172.24.0.11:5001/api/estudios/${this.estudioEditado.esId}`, this.estudioEditado);
+        this.successMessage = 'Estudio editado exitosamente.';
+        this.showSuccessAlert = true;
+        this.obtenerEstudios(); // Actualizar la lista de estudios
+        this.closeEditModal(); // Cerrar el modal
+      } catch (error) {
+        console.error('Error al editar estudio:', error);
+      }
+    },
+    async eliminarEstudio() {
+      try {
+        // Verifica que estudioAEliminar y esId estén definidos
+        if (!this.estudioAEliminar || !this.estudioAEliminar.esId) {
+          console.error('El estudio a eliminar no está definido o no tiene un esId válido.');
+          return;
+        }
+
+        // Envía la solicitud POST para cambiar el estado del estudio a 'I'
+        await axios.post(`http://172.24.0.11:5001/api/estudios/${this.estudioAEliminar.esId}`, {
+          esEstado: 'I' // Cambia el estado a 'I' para inactivo
+        });
+
+        // Actualiza el mensaje de éxito y muestra la alerta
+        this.successMessage = 'Estudio eliminado exitosamente.';
+        this.showSuccessAlert = true;
+
+        // Actualiza la lista de estudios y cierra el modal
+        this.obtenerEstudios(); // Actualizar la lista de estudios
+        this.closeDeleteModal(); // Cerrar el modal
+      } catch (error) {
+        console.error('Error al eliminar estudio:', error);
+      }
     },
     async añadirExperiencia() {
       try {
@@ -452,7 +708,7 @@ export default {
     },
     async eliminarExperiencia() {
       try {
-        await axios.delete(`http://172.24.0.11:5001/api/experiencias/${this.experienciaAEliminar.expId}`);
+        await axios.post(`http://172.24.0.11:5001/api/experiencias/${this.experienciaAEliminar.expId}`);
         this.successMessage = 'Experiencia eliminada exitosamente.';
         this.showSuccessAlert = true;
         this.obtenerExperiencias(); // Actualizar la lista de experiencias
