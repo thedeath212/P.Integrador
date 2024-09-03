@@ -93,7 +93,7 @@ const routes = [
     path: '/dashempresas',
     name: 'DashEmpresas',
     component: DashboardEmpresa,
-    meta: { requiresAuth: true, allowedRoles: [1] }
+    meta: { requiresAuth: true } // Solo requiere autenticación
   },
   {
     path: '/rempesas',

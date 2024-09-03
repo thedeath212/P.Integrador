@@ -47,7 +47,7 @@
           <button type="submit" class="w-full p-2 bg-zinc-500 text-white rounded-lg hover:bg-zinc-600">Ingresar</button>
         </form>
         <p class="mt-4 text-center text-muted-foreground">
-          <router-link to="/register" class="text-pink-600 hover:underline">Regístrate como empresa</router-link>
+          <router-link to="/rempresas" class="text-pink-600 hover:underline">Regístrate como empresa</router-link>
         </p>
       </div>
       <div class="hidden md:block w-1/2 p-4">
@@ -85,7 +85,7 @@ export default {
       showErrorAlert: false,
       successMessage: '',
       errorMessage: '',
-      empresaNombre: '' // Variable para almacenar el nombre de la empresa
+      comEncargado: '' // Variable para almacenar el nombre del encargado
     };
   },
   methods: {
@@ -98,6 +98,7 @@ export default {
       }
 
       try {
+        // Solicitud POST para autenticar al usuario
         const response = await fetch('http://172.24.0.11:5001/api/empresas/login', {
           method: 'POST',
           headers: {
@@ -110,27 +111,69 @@ export default {
         });
 
         if (!response.ok) {
-          throw new Error('Credenciales inválidas');
+          throw new Error('Credenciales incorrectas');
         }
 
-        const empresaData = await response.json();
-        const { comDni, comClave, comRol, token, comNombre } = empresaData;
+        const responseText = await response.text();
+        let empresaData = {};
+
+        if (responseText) {
+          try {
+            empresaData = JSON.parse(responseText);
+          } catch (e) {
+            throw new Error('Error al analizar la respuesta del servidor');
+          }
+        } else {
+          throw new Error('Credenciales incorrectas');
+        }
+
+        const { comDni, comClave, comRol, token, comEstado, comEncargado } = empresaData;
+
+        if (comEstado !== 'A') {
+          throw new Error('La empresa no está activa');
+        }
 
         if (this.dni === comDni && this.clave === comClave) {
           localStorage.setItem('authToken', token);
           localStorage.setItem('empresaDni', this.dni);
           localStorage.setItem('empresaRole', comRol);
-          localStorage.setItem('empresaNombre', comNombre); 
-          this.$router.push({ name: 'DashboardEmpresa', params: { empresaNombre: comNombre } });// Almacenar el nombre de la empresa
 
-          this.successMessage = 'Inicio de sesión exitoso como empresa';
-          this.showSuccessAlert = true;
-          setTimeout(() => {
-            this.showSuccessAlert = false;
-            this.$router.push('/dashempresas');
-          }, 1000);
+          // Guardar comEncargado en localStorage si está presente
+          if (comEncargado && comEncargado.trim() !== '') {
+            localStorage.setItem('encargadoNombre', comEncargado);
+            this.comEncargado = comEncargado; // Actualiza la variable local
+          } else {
+            localStorage.removeItem('encargadoNombre'); // Elimina la clave si está vacía
+          }
+
+          // Solicitud GET para obtener la información de todas las empresas
+          const companiesResponse = await fetch('http://172.24.0.11:5001/api/empresas', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (!companiesResponse.ok) {
+            throw new Error('No se pudo obtener la información de las empresas');
+          }
+
+          const companiesData = await companiesResponse.json();
+          const empresa = companiesData.find(emp => emp.comDni === this.dni);
+
+          if (empresa) {
+            this.successMessage = 'Inicio de sesión exitoso como empresa';
+            this.showSuccessAlert = true;
+
+            setTimeout(() => {
+              this.showSuccessAlert = false;
+              this.$router.push('/dashempresas'); // O la ruta correspondiente
+            }, 1000);
+          } else {
+            throw new Error('No se encontró la empresa');
+          }
         } else {
-          throw new Error('Credenciales inválidas');
+          throw new Error('Credenciales incorrectas');
         }
       } catch (error) {
         console.error('Error al iniciar sesión:', error.message);

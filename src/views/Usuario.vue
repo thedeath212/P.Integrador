@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-background text-foreground p-4">
-    <header class="flex items-center justify-between p-4 bg-white shadow-md">
+    <header class="flex items-center justify-between p-4 bg-white shadow-2xl">
       <div class="flex items-center space-x-4">
         <img src="https://i.imgur.com/RCpUHKA.png" alt="Logo Multitrabajos" class="h-10">
         <input v-model="searchSalary" type="number" placeholder="Sueldo deseado"
@@ -19,7 +19,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
           </svg>
         </button>
-        <div v-if="menuVisible" class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
+        <div v-if="menuVisible" class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-2xl z-10">
           <button @click="verPerfil" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver
             postulaciones</button>
           <button @click="cerrarSesion" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Cerrar
@@ -28,7 +28,7 @@
       </div>
     </header>
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-4">
-      <aside class="col-span-1 bg-white p-4 rounded-lg shadow-md">
+      <aside class="col-span-1 bg-white p-4 rounded-lg border border-gray-300 shadow-lg">
         <div class="flex flex-col items-center space-y-4">
           <label for="profileImageInput" class="cursor-pointer">
             <img :src="userProfileImage" alt="User Profile" class="h-20 w-20 rounded-full mb-4 cursor-pointer">
@@ -63,29 +63,28 @@
             </div>
           </div>
           <!-- Sección para subir CV en PDF -->
-          <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition mt-4">
+          <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition mt-4">
             <h3 class="text-lg font-semibold text-blue-800">Subir CV en PDF</h3>
-            <input type="file" accept=".pdf" @change="handleFileChange" class="border rounded-md p-2 w-full">
+            <input type="file" accept=".pdf" @change="handleCurriculumChange" class="border rounded-md p-2 w-full">
             <p v-if="uploadError" class="text-red-500 mt-2">{{ uploadError }}</p>
             <button @click="uploadPDF"
               class="bg-primary text-primary-foreground p-2 rounded-md mt-4 hover:bg-primary/80 transition">
               Subir PDF
             </button>
           </section>
-
         </div>
       </aside>
 
       <!-- Sección -->
       <main class="col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
+        <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition">
           <h3 class="text-lg font-semibold text-blue-800">Publicaciones</h3>
           <div v-if="publicaciones.length === 0" class="text-center text-muted-foreground mt-4">
             No hay publicaciones disponibles.
           </div>
           <div v-else class="mt-4 max-h-96 overflow-y-auto">
             <div v-for="publicacion in publicaciones.slice(0, 5)" :key="publicacion.pubId"
-              class="bg-gray-100 p-4 rounded-lg shadow-md mb-4">
+              class="bg-gray-100 p-4 rounded-lg border border-gray-300 shadow-md mb-4">
               <h4 class="text-lg font-semibold text-blue-800">{{ publicacion.pubTitulo }}</h4>
               <p class="text-md mt-2 text-gray-700">{{ publicacion.pubTema }}</p>
               <p class="mt-2">{{ publicacion.pubDescripcion }}</p>
@@ -95,9 +94,8 @@
           </div>
         </section>
 
-        <!-- Sección ExperienciasF -->
-        <!-- Sección de Experiencias -->
-        <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition">
+        <!-- Sección Experiencias -->
+        <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-blue-800">Experiencias</h3>
             <button @click="openModal"
@@ -111,7 +109,7 @@
           <div v-else>
             <ul class="space-y-4">
               <li v-for="(exp, index) in experiencias" :key="index"
-                class="bg-gray-100 p-4 rounded-md shadow-sm flex items-start justify-between">
+                class="bg-gray-100 p-4 rounded-md border border-gray-300 shadow-md flex items-start justify-between">
                 <div class="flex-grow">
                   <h4 class="text-md font-semibold text-blue-700">{{ exp.expTitulo }}</h4>
                   <p class="text-sm text-gray-600"><strong>Puesto:</strong> {{ exp.expPuesto }}</p>
@@ -135,8 +133,9 @@
             </ul>
           </div>
         </section>
+
         <!-- Sección de Estudios -->
-        <section class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition mt-4">
+        <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition mt-4">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-blue-800">Estudios</h3>
             <button @click="openAddStudyModal"
@@ -150,11 +149,15 @@
           <div v-else>
             <ul class="space-y-4">
               <li v-for="(estudio, index) in estudios" :key="index"
-                class="bg-gray-100 p-4 rounded-md shadow-sm flex items-start justify-between">
+                class="bg-gray-100 p-4 rounded-md border border-gray-300 shadow-md flex items-start justify-between">
                 <div class="flex-grow">
                   <h4 class="text-md font-semibold text-blue-700">{{ estudio.estTitulo }}</h4>
-                  <p class="text-sm text-gray-600"><strong>Institución:</strong> {{ estudio.esInstitucion }}</p>
-                  <p class="text-sm text-gray-600"><strong>Descripción:</strong> {{ estudio.esDescripcion }}</p>
+                  <p class="text-sm text-gray-600"><strong>Institución:</strong> {{ estudio.estInstitucion }}</p>
+                  <p class="text-sm text-gray-600"><strong>Descripción:</strong> {{ estudio.estDescripcion }}</p>
+                  <p class="text-sm text-gray-600"><strong>Fecha de Inicio:</strong> {{ new
+                    Date(estudio.estFechaInicio).toLocaleDateString() }}</p>
+                  <p class="text-sm text-gray-600"><strong>Fecha de Finalización:</strong> {{ new
+                    Date(estudio.estFechaFinalizacion).toLocaleDateString() }}</p>
                 </div>
                 <div class="flex space-x-2">
                   <button @click="openEditStudyModal(estudio)"
@@ -165,13 +168,11 @@
                     class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition flex items-center justify-center">
                     <i class="fas fa-trash"></i>
                   </button>
-
                 </div>
               </li>
             </ul>
           </div>
         </section>
-
       </main>
     </div>
     <!-- Modal para añadir experiencia -->
@@ -439,6 +440,25 @@ export default {
           return cumpleSueldo && cumpleTitulo;
         });
       });
+    },
+    async handleCurriculumChange(event) {
+      const curriculumFile = event.target.files[0];
+      const formData = new FormData();
+      formData.append('curriculum', curriculumFile);
+
+      try {
+        const response = await axios.post('http://172.24.0.11:5001/api/curriculums', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        if (response.status === 201) {
+          this.userProfileImage = response.data.CumId;
+        }
+      } catch (error) {
+        console.error('Error al subir el currículum:', error);
+      }
     },
     async obtenerDatosUsuario() {
       try {
