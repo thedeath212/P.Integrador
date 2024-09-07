@@ -130,7 +130,7 @@ import axios from 'axios';
 import AppAlert from '../components/Alert.vue';
 
 export default {
-  name: 'CrearEmpresa',
+  name: 'RegistroEmpresa',
   components: {
     AppAlert
   },

@@ -13,17 +13,21 @@
       <div class="relative">
         <button @click="toggleMenu" class="flex items-center space-x-2">
           <img src="../assets/personita.png" style="width: 40px; height: 40px;" alt="User Icon">
-          <span class="ml-2">{{ usuUser }}</span>
+          <p>{{ usuarioDatos?.usuUser }}</p>
           <svg class="h-4 w-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
           </svg>
         </button>
         <div v-if="menuVisible" class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-2xl z-10">
-          <button @click="verPerfil" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver
-            postulaciones</button>
+          <router-link to="/postulaciones">
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver Postulaciones</button>
+          </router-link>
+          <router-link :to="`/perfil/${usuarioDatos.usuId}`">
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver Perfil</button>
+          </router-link>
           <button @click="cerrarSesion" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Cerrar
-            Sesión</button>
+            sesión</button>
         </div>
       </div>
     </header>
@@ -71,10 +75,10 @@
               class="bg-primary text-primary-foreground p-2 rounded-md mt-4 hover:bg-primary/80 transition">
               Subir PDF
             </button>
+
           </section>
         </div>
       </aside>
-
       <!-- Sección -->
       <main class="col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition">
@@ -82,9 +86,14 @@
           <div v-if="publicaciones.length === 0" class="text-center text-muted-foreground mt-4">
             No hay publicaciones disponibles.
           </div>
-          <div v-else class="mt-4 max-h-96 overflow-y-auto">
-            <div v-for="publicacion in publicaciones.slice(0, 5)" :key="publicacion.pubId"
-              class="bg-gray-100 p-4 rounded-lg border border-gray-300 shadow-md mb-4">
+          <div v-else class="mt-4 max-h-[calc(5*10rem)] overflow-y-auto">
+            <!-- Cambia 10rem a la altura real de cada publicación si es necesario -->
+            <div v-for="publicacion in publicaciones.slice(0, 10)" :key="publicacion.pubId"
+              class="relative bg-gray-100 p-4 rounded-lg border border-gray-300 shadow-md mb-4">
+              <button @click="applyForPublication(publicacion)"
+                class="absolute top-20 right-6 bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition">
+                Postularme Ya
+              </button>
               <h4 class="text-lg font-semibold text-blue-800">{{ publicacion.pubTitulo }}</h4>
               <p class="text-md mt-2 text-gray-700">{{ publicacion.pubTema }}</p>
               <p class="mt-2">{{ publicacion.pubDescripcion }}</p>
@@ -132,47 +141,44 @@
               </li>
             </ul>
           </div>
+          <!-- Sección de Estudios -->
+          <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition mt-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-blue-800">Estudios</h3>
+              <button @click="openAddStudyModal"
+                class="bg-primary text-primary-foreground p-2 rounded-md hover:bg-primary/80 transition">
+                Añadir Estudio
+              </button>
+            </div>
+            <div v-if="estudios.length === 0" class="text-center text-muted-foreground">
+              No hay estudios disponibles.
+            </div>
+            <div v-else>
+              <ul class="space-y-4">
+                <li v-for="(estudio, index) in estudios" :key="index"
+                  class="bg-gray-100 p-4 rounded-md border border-gray-300 shadow-md flex items-start justify-between">
+                  <div class="flex-grow">
+                    <h4 class="text-md font-semibold text-blue-700">{{ estudio.estTitulo }}</h4>
+                    <p class="text-sm text-gray-600"><strong>Institución:</strong> {{ estudio.esInstitucion }}</p>
+                    <p class="text-sm text-gray-600"><strong>Descripción:</strong> {{ estudio.esDescripcion }}</p>
+                  </div>
+                  <div class="flex space-x-2">
+                    <button @click="openEditStudyModal(estudio)"
+                      class="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition flex items-center justify-center">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button @click="openDeleteStudyModal(estudio)"
+                      class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition flex items-center justify-center">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
         </section>
 
-        <!-- Sección de Estudios -->
-        <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition mt-4">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-blue-800">Estudios</h3>
-            <button @click="openAddStudyModal"
-              class="bg-primary text-primary-foreground p-2 rounded-md hover:bg-primary/80 transition">
-              Añadir Estudio
-            </button>
-          </div>
-          <div v-if="estudios.length === 0" class="text-center text-muted-foreground">
-            No hay estudios disponibles.
-          </div>
-          <div v-else>
-            <ul class="space-y-4">
-              <li v-for="(estudio, index) in estudios" :key="index"
-                class="bg-gray-100 p-4 rounded-md border border-gray-300 shadow-md flex items-start justify-between">
-                <div class="flex-grow">
-                  <h4 class="text-md font-semibold text-blue-700">{{ estudio.estTitulo }}</h4>
-                  <p class="text-sm text-gray-600"><strong>Institución:</strong> {{ estudio.estInstitucion }}</p>
-                  <p class="text-sm text-gray-600"><strong>Descripción:</strong> {{ estudio.estDescripcion }}</p>
-                  <p class="text-sm text-gray-600"><strong>Fecha de Inicio:</strong> {{ new
-                    Date(estudio.estFechaInicio).toLocaleDateString() }}</p>
-                  <p class="text-sm text-gray-600"><strong>Fecha de Finalización:</strong> {{ new
-                    Date(estudio.estFechaFinalizacion).toLocaleDateString() }}</p>
-                </div>
-                <div class="flex space-x-2">
-                  <button @click="openEditStudyModal(estudio)"
-                    class="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition flex items-center justify-center">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button @click="openDeleteStudyModal(estudio)"
-                    class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition flex items-center justify-center">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </section>
+
       </main>
     </div>
     <!-- Modal para añadir experiencia -->
@@ -384,12 +390,12 @@ export default {
       nuevaExperiencia: {
         expId: 0,
         expUsuario: null,
-        expDescripcion: '',
+        expTitulo: '',
         expPuesto: '',
+        expDescripcion: '',
         expFechaInicio: '',
         expFechaFinalizacion: '',
-        expEstado: 'A',
-        expTitulo: '',
+        expEstado: 'A'
       },
       experienciaEditada: {
         expId: 0,
@@ -414,7 +420,7 @@ export default {
       uploadError: '',
       showSuccessAlert: false,
       successMessage: '',
-      userProfileImage: 'https://i.imgur.com/RCpUHKA.png',
+      userProfileImage: 'https://genesistoxical.com/wp-content/uploads/2022/07/CFS_P.png',
       selectedFile: null,
     };
   },
@@ -655,9 +661,7 @@ export default {
 
     async añadirEstudio() {
       try {
-        // Asegúrate de que el `usuId` esté correctamente asignado antes de enviar la solicitud
         this.nuevoEstudio.usuId = this.usuarioDatos.usuId;
-
         await axios.post('http://172.24.0.11:5001/api/estudios', this.nuevoEstudio);
         this.successMessage = 'Estudio añadido exitosamente.';
         this.showSuccessAlert = true;

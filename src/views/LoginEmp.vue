@@ -47,7 +47,7 @@
           <button type="submit" class="w-full p-2 bg-zinc-500 text-white rounded-lg hover:bg-zinc-600">Ingresar</button>
         </form>
         <p class="mt-4 text-center text-muted-foreground">
-          <router-link to="/rempresas" class="text-pink-600 hover:underline">Regístrate como empresa</router-link>
+          <router-link to="/rempesas" class="text-pink-600 hover:underline">Regístrate como empresa</router-link>
         </p>
       </div>
       <div class="hidden md:block w-1/2 p-4">

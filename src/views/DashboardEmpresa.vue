@@ -50,59 +50,55 @@
         <!-- Segundo bloque -->
         <div class="w-1/2 space-y-6">
           <div class="bg-white p-6 rounded-3 border border-light shadow-2xl">
-            <!-- Fondo blanco, borde gris sutil y sombra grande -->
             <h3 class="text-xl font-bold text-blue-600 font-serif">Información de Encargado</h3>
             <p class="mt-4 text-lg text-gray-700">Nombre: {{ empresa.nombres }}</p>
             <p class="mt-4 text-lg text-gray-700">Apellido: {{ empresa.apellidos }}</p>
           </div>
           <div class="bg-white p-6 rounded-3 border border-light shadow-2xl">
-            <!-- Fondo blanco, borde gris sutil y sombra grande -->
             <h3 class="text-xl font-bold text-blue-600 font-serif">Información de contacto empresa</h3>
             <p class="mt-4 text-lg text-gray-700">Teléfono: {{ empresa.telefono }}</p>
             <p class="mt-4 text-lg text-gray-700">Correo Empresa: {{ empresa.correo }}</p>
           </div>
           <div class="bg-white p-6 rounded-3 border border-light shadow-2xl">
-            <!-- Fondo blanco, borde gris sutil y sombra grande -->
             <h3 class="text-xl font-bold text-blue-600 font-serif">Contacto empresa</h3>
             <p class="mt-4 text-lg text-gray-700">Dirección: {{ empresa.direccion }}</p>
           </div>
         </div>
       </section>
 
-      <!-- Sección: Productos -->
+
+      <!-- Lista de publicaciones -->
       <section class="bg-white p-6 rounded-lg shadow">
         <h2 class="text-xl font-semibold mb-4">Publicaciones</h2>
         <div class="flex space-x-4 mb-4">
           <button class="bg-blue-600 text-white px-4 py-2 rounded-lg">Ver mis publicaciones</button>
           <button class="bg-zinc-200 text-zinc-700 px-4 py-2 rounded-lg">Ver postulaciones</button>
         </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="border p-4 rounded-lg">
-            <h3 class="text-lg font-semibold">Gratis</h3>
-            <img src="https://i.imgur.com/RCpUHKA.png" alt="Logo" class="h-12 ml-4">
-            <p class="text-zinc-700">1</p>
-            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg mt-2">Publicar</button>
-          </div>
-          <div class="border p-4 rounded-lg">
-            <h3 class="text-lg font-semibold">Simple</h3>
-            <img src="https://i.imgur.com/RCpUHKA.png" alt="Logo" class="h-12 ml-4">
-            <p class="text-zinc-700">USD 300<sup>15</sup> final</p>
-            <button class="bg-green-600 text-white px-4 py-2 rounded-lg mt-2">Comprar</button>
-          </div>
-          <div class="border p-4 rounded-lg">
-            <h3 class="text-lg font-semibold">Destacado</h3>
-            <img src="https://i.imgur.com/RCpUHKA.png" alt="Logo" class="h-12 ml-4">
-            <p class="text-zinc-700">USD 479<sup>95</sup> final</p>
-            <button class="bg-green-600 text-white px-4 py-2 rounded-lg mt-2">Comprar</button>
-          </div>
-          <div class="border p-4 rounded-lg">
-            <h3 class="text-lg font-semibold">Superdestacado</h3>
-            <img src="https://i.imgur.com/RCpUHKA.png" alt="Logo" class="h-12 ml-4">
-            <p class="text-zinc-700">USD 671<sup>05</sup> final</p>
-            <button class="bg-green-600 text-white px-4 py-2 rounded-lg mt-2">Comprar</button>
+        <div v-if="publicacionesFiltradas.length === 0" class="text-center text-gray-500">
+          No hay publicaciones disponibles.
+        </div>
+        <div v-else class="flex-grow overflow-auto">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+            <div v-for="publicacion in publicacionesFiltradas" :key="publicacion.pubId"
+              class="bg-white p-4 rounded-lg border border-gray-200 mb-4 shadow-md">
+              <h3 class="text-lg font-bold mb-2">{{ publicacion.pubTitulo }}</h3>
+              <p class="text-gray-600 mb-4">{{ publicacion.pubDescripcion }}</p>
+              <p><strong>Tema:</strong> {{ publicacion.pubTema }}</p>
+              <p><strong>Salario:</strong> {{ publicacion.pubSalario }}</p>
+              <p><strong>Fecha:</strong> {{ publicacion.pubFecha }}</p>
+              <p><strong>Estado:</strong> {{ publicacion.pubEstado }}</p>
+              <div class="mt-4 flex justify-end space-x-2">
+                <router-link :to="'/editar-publicacion/' + publicacion.pubId"
+                  class="bg-yellow-500 text-white py-2 px-4 rounded">Editar</router-link>
+                <button @click="confirmarEliminacion(publicacion.pubId)"
+                  class="bg-red-500 text-white py-2 px-4 rounded">Eliminar</button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+
     </main>
     <!-- ...resto del template... -->
     <transition name="fade">
@@ -146,9 +142,27 @@
       </div>
     </transition>
 
+    <!-- Modal de confirmación de eliminación -->
+    <transition name="fade" enter-active-class="transition ease-out duration-300" enter-class="opacity-0"
+      enter-to-class="opacity-100" leave-active-class="transition ease-in duration-200" leave-class="opacity-100"
+      leave-to-class="opacity-0">
+      <div v-if="mostrarModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+          <h3 class="text-lg font-bold mb-4">Confirmar Eliminación</h3>
+          <p class="mb-4">¿Estás seguro de que deseas eliminar esta publicación?</p>
+          <div class="flex justify-end space-x-2">
+            <button @click="eliminarPublicacionConfirmado"
+              class="bg-red-500 text-white py-2 px-4 rounded">Eliminar</button>
+            <button @click="cancelarEliminacion" class="bg-gray-500 text-white py-2 px-4 rounded">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </transition>
+
   </div>
   <AppAlert v-if="successMessage" :message="successMessage" type="success" />
   <AppAlert v-if="errorMessage" :message="errorMessage" type="error" />
+
 </template>
 
 <script>
@@ -165,6 +179,7 @@ export default {
       successMessage: '',
       errorMessage: '',
       menuVisible: false,
+      publicacionesFiltradas: [],
       modalVisible: false,
       isSubmitting: false, // Agregado para manejar el estado de envío
       newPublication: {
@@ -185,12 +200,25 @@ export default {
         correo: '',
         nombreEmpresa: '',
         razonSocial: '',
-      }
+      },
+      idPublicacionAEliminar: null, // ID de la publicación a eliminar
+      mostrarModal: false // Mostrar modal de confirmación
     };
   },
-  created() {
-    this.comEncargado = localStorage.getItem('encargadoNombre') || 'Usuario';
-    this.fetchCompanyData(); // Llamar a la función para obtener los datos de la empresa
+  async created() {
+    try {
+      this.comEncargado = localStorage.getItem('encargadoNombre') || 'Usuario';
+
+      await this.fetchCompanyData();
+
+      if (this.empresa && this.empresa.id) {
+        await this.fetchPublicaciones();
+      } else {
+        console.error('El ID de la empresa no está disponible después de fetchCompanyData()');
+      }
+    } catch (error) {
+      console.error('Error en created():', error.message);
+    }
   },
   methods: {
     toggleMenu() {
@@ -284,6 +312,28 @@ export default {
         this.isSubmitting = false; // Restaura el estado de envío
       }
     },
+    confirmarEliminacion(pubId) {
+      this.idPublicacionAEliminar = pubId;
+      this.mostrarModal = true;
+    },
+    async eliminarPublicacionConfirmado() {
+      try {
+        const response = await axios.post(`http://172.24.0.11:5001/api/publicaciones/${this.idPublicacionAEliminar}`, { pubEstado: 'I' });
+        if (response.status === 200) {
+          this.publicacionesFiltradas = this.publicacionesFiltradas.filter(publicacion => publicacion.pubId !== this.idPublicacionAEliminar);
+          this.mostrarModal = false; // Ocultar modal
+          this.idPublicacionAEliminar = null; // Limpiar ID de publicación
+        } else {
+          console.error('Error al eliminar la publicación.');
+        }
+      } catch (error) {
+        console.error('Error al eliminar la publicación:', error);
+      }
+    },
+    cancelarEliminacion() {
+      this.mostrarModal = false; // Ocultar modal
+      this.idPublicacionAEliminar = null; // Limpiar ID de publicación
+    },
     resetForm() {
       this.newPublication = {
         pubTitulo: '',
@@ -291,6 +341,27 @@ export default {
         pubDescripcion: '',
         pubSalario: ''
       };
+    },
+    async fetchPublicaciones() {
+      try {
+        if (!this.empresa.id) {
+          throw new Error('El ID de la empresa no está definido.');
+        }
+        const response = await axios.get(`http://172.24.0.11:5001/api/publicaciones`);
+        console.log('Publicaciones obtenidas:', response.data);
+        console.log('ID de la empresa:', this.empresa.id);
+
+        // Aplicar el filtro
+        this.publicacionesFiltradas = response.data.filter(publicacion => {
+          console.log('Comparando:', publicacion.usuId, 'con', this.empresa.id);
+          return publicacion.usuId === this.empresa.id;
+        });
+
+        console.log('Publicaciones filtradas:', this.publicacionesFiltradas);
+      } catch (error) {
+        console.error('Error al obtener publicaciones:', error);
+        this.errorMessage = error.message;
+      }
     }
   }
 };

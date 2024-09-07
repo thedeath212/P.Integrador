@@ -17,7 +17,8 @@ import CrearP from './views/FuncionCrud/CrearP.vue';
 import EditarPubli from './views/FuncionCrud/EditarP.vue';
 import CrearEmpresa from './views/FuncionCrud/CrearE.vue';
 import EditarEmpresa from './views/FuncionCrud/EditarE.vue';
-
+import PostuPage from './views/Usuario/Postulaciones.vue';
+import PerfilPage from './views/Usuario/Perfil.vue';
 // Definición de rutas
 const routes = [
   // Sección Principal
@@ -124,7 +125,18 @@ const routes = [
     props: true,
     meta: { requiresAuth: true, allowedRoles: [1] }
   },
-
+  {
+    path: '/perfil/:id',
+    name: 'PerfilPage',
+    component: PerfilPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/postulaciones',
+    name: 'PostuPage',
+    component: PostuPage,
+    meta: { requiresAuth: true }
+  },
 ];
 
 // Creación del router

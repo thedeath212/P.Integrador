@@ -66,6 +66,7 @@
         <AppAlert type="error" :message="errorMessage" />
       </div>
     </transition>
+
   </div>
 </template>
 
@@ -86,8 +87,10 @@ export default {
       showErrorAlert: false,
       showSuccessAlert: false,
       showInactiveUserError: false,
+      showBlockedUserError: false,
       successMessage: '',
-      errorMessage: ''
+      errorMessage: '',
+      failedAttempts: 0, // Contador de intentos fallidos
     };
   },
   created() {
@@ -109,6 +112,15 @@ export default {
         this.showEmptyFieldsError = false;
       }
 
+      if (this.failedAttempts >= 3) {
+        this.showBlockedUserError = true;
+        this.errorMessage = 'Usuario bloqueado después de 3 intentos fallidos.';
+        setTimeout(() => {
+          this.showBlockedUserError = false;
+        }, 3000);
+        return;
+      }
+
       try {
         const response = await fetch('http://172.24.0.11:5001/api/usuario/login', {
           method: 'POST',
@@ -123,14 +135,33 @@ export default {
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(errorText || 'Credenciales inválidas');
+          this.errorMessage = errorText || 'Credenciales inválidas';
+          this.showErrorAlert = true;
+          this.failedAttempts += 1; // Incrementar el contador de intentos fallidos
+          
+          // Mostrar mensaje de usuario inactivo si ya se alcanzaron los 3 intentos fallidos
+          if (this.failedAttempts >= 3) {
+            this.showInactiveUserError = true;
+          }
+          
+          setTimeout(() => {
+            this.showErrorAlert = false;
+          }, 3000);
+          return;
         }
 
         let userData;
         try {
           userData = await response.json();
         } catch (e) {
-          throw new Error('Usuario o contraseña incorrecta');
+          // Mostrar mensaje específico de error solo si ocurre un error al procesar los datos
+          this.errorMessage = 'Correo o contraseña incorrecta';
+          this.showErrorAlert = true;
+          console.error('Error al procesar los datos del usuario:', e.message);
+          setTimeout(() => {
+            this.showErrorAlert = false;
+          }, 3000);
+          return; // Detener el proceso si hay un error en el procesamiento
         }
 
         const { usuCorreo, usuClave, usuRol, token, usuEstado } = userData;
@@ -163,16 +194,26 @@ export default {
           } else {
             throw new Error('Rol de usuario desconocido');
           }
+          this.failedAttempts = 0; // Restablecer el contador de intentos fallidos después de un inicio de sesión exitoso
+          this.showInactiveUserError = false; // Asegúrate de ocultar el mensaje de usuario inactivo después de un inicio de sesión exitoso
         } else {
-          throw new Error('Credenciales inválidas');
+          this.errorMessage = 'Usuario o contraseña incorrectos';
+          this.showErrorAlert = true;
+          this.failedAttempts += 1; // Incrementar el contador de intentos fallidos
+          
+          // Mostrar mensaje de usuario inactivo si ya se alcanzaron los 3 intentos fallidos
+          if (this.failedAttempts >= 3) {
+            this.showInactiveUserError = true;
+          }
+          
+          setTimeout(() => {
+            this.showErrorAlert = false;
+          }, 3000);
         }
+
       } catch (error) {
         console.error('Error al iniciar sesión:', error.message);
-        if (error.message.includes('Credenciales inválidas')) {
-          this.errorMessage = 'Usuario o contraseña incorrectos';
-        } else {
-          this.errorMessage = error.message;
-        }
+        this.errorMessage = error.message;
         this.showErrorAlert = true;
         setTimeout(() => {
           this.showErrorAlert = false;
@@ -202,7 +243,10 @@ export default {
     }
   }
 };
+
+
 </script>
+
 
 <style scoped>
 .alert-container {
