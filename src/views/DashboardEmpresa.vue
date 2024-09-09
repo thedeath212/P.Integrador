@@ -14,8 +14,11 @@
           </svg>
         </button>
         <div v-if="menuVisible" class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
-          <button @click="verPerfil" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver
+          <button @click="verPostulaciones" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver
             postulaciones</button>
+          <button @click="verPerfil(empresa.id)" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver
+            perfil</button>
+
           <button @click="cerrarSesion" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Cerrar
             Sesión</button>
         </div>
@@ -231,8 +234,11 @@ export default {
       localStorage.removeItem('encargadoNombre');
       this.$router.push('/login');
     },
-    verPerfil() {
-      this.$router.push('/perfil');
+    verPerfil(comId) {
+      this.$router.push({ name: 'PerfilEmpresa', params: { comId } });
+    },
+    verPostulaciones() {
+      this.$router.push('/postulacionesEmpresa');
     },
     async fetchCompanyData() {
       try {

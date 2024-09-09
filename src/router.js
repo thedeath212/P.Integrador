@@ -20,6 +20,7 @@ import EditarEmpresa from './views/FuncionCrud/EditarE.vue';
 import PostuPage from './views/Usuario/Postulaciones.vue';
 import PerfilPage from './views/Usuario/Perfil.vue';
 import VerPublicacion from './views/Usuario/VerPubli.vue';
+import PerfilEmpresa from './views/Usuario/PerfilEmpresa.vue';
 // Definición de rutas
 const routes = [
   // Sección Principal
@@ -133,6 +134,13 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/perfilEmpresa/:comId',
+    name: 'PerfilEmpresa',
+    component: PerfilEmpresa,
+    props: true,
+    meta: { requiresAuth: true }
+  }  ,
+  {
     path: '/postulaciones',
     name: 'PostuPage',
     component: PostuPage,
@@ -144,7 +152,8 @@ const routes = [
     component: VerPublicacion,
     props: true,
     meta: { requiresAuth: true }
-  }  
+  } 
+   
 ];
 
 // Creación del router

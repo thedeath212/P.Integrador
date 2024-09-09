@@ -44,7 +44,6 @@
                 class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
                 <option value="" disabled selected>Seleccione</option>
                 <option value="1">Cédula</option>
-                <option value="2">RUC</option>
               </select>
             </div>
             <div>

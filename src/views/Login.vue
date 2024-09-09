@@ -51,6 +51,10 @@
         <p class="mt-4 text-center text-muted-foreground">
           <router-link to="/register" class="text-pink-600 hover:underline">Regístrate como candidato</router-link>
         </p>
+        <p class="mt-4 text-center text-muted-foreground">
+          <button @click="showPasswordRecoveryModal = true" class="text-pink-600 hover:underline">¿Olvidaste tu
+            contraseña?</button>
+        </p>
       </div>
       <div class="hidden md:block w-1/2 p-4">
         <img src="../assets/login_img.png" alt="Ilustración de una persona con un currículum" />
@@ -66,22 +70,25 @@
         <AppAlert type="error" :message="errorMessage" />
       </div>
     </transition>
-
+    <PasswordRecoveryModal :showModal="showPasswordRecoveryModal" @close="showPasswordRecoveryModal = false" />
   </div>
 </template>
 
 <script>
+import PasswordRecoveryModal from '../components/PasswordRecoveryModal.vue';
 import AppAlert from '../components/Alert.vue';
 
 export default {
   name: 'LoginPage',
   components: {
-    AppAlert
+    AppAlert,
+    PasswordRecoveryModal
   },
   data() {
     return {
       correo: '',
       clave: '',
+      showPasswordRecoveryModal: false,
       passwordVisible: false,
       showEmptyFieldsError: false,
       showErrorAlert: false,
@@ -133,68 +140,35 @@ export default {
           }),
         });
 
-        // Verificar si la respuesta no es OK
         if (!response.ok) {
-          // Intentar obtener el texto de la respuesta
-          const responseText = await response.text();
+          const errorText = await response.text();
+          this.errorMessage = errorText || 'Credenciales inválidas';
+          this.showErrorAlert = true;
+          this.failedAttempts += 1; // Incrementar el contador de intentos fallidos
 
-          // Verificar si hay contenido en la respuesta
-          if (responseText) {
-            try {
-              const responseData = JSON.parse(responseText);
-              const { usuIntentos } = responseData;
-
-              if (usuIntentos >= 3) {
-                this.errorMessage = 'Usuario bloqueado después de 3 intentos fallidos.';
-                this.showBlockedUserError = true;
-                this.failedAttempts = 3; // Establecer intentos fallidos al máximo para bloquear
-              } else {
-                this.errorMessage = `Credenciales inválidas. ${3 - usuIntentos} intento(s) restante(s) antes de bloquear.`;
-                this.showErrorAlert = true;
-                this.failedAttempts = usuIntentos; // Sincronizar el contador local con el del servidor
-              }
-
-              setTimeout(() => {
-                this.showErrorAlert = false;
-                this.showBlockedUserError = false;
-              }, 3000);
-            } catch (e) {
-              console.error('Error al analizar JSON:', e.message);
-              this.errorMessage = 'Error al procesar la respuesta del servidor';
-              this.showErrorAlert = true;
-              setTimeout(() => {
-                this.showErrorAlert = false;
-              }, 3000);
-            }
-          } else {
-            this.errorMessage = 'Error al procesar la respuesta del servidor';
-            this.showErrorAlert = true;
-            setTimeout(() => {
-              this.showErrorAlert = false;
-            }, 3000);
+          // Mostrar mensaje de usuario inactivo si ya se alcanzaron los 3 intentos fallidos
+          if (this.failedAttempts >= 3) {
+            this.showInactiveUserError = true;
           }
 
+          setTimeout(() => {
+            this.showErrorAlert = false;
+          }, 3000);
           return;
         }
 
-        // Procesar los datos del usuario si la respuesta es exitosa
-        let userData = {};
-
-        // Intentar analizar la respuesta JSON
-        const responseText = await response.text();
-
-        if (responseText) {
-          try {
-            userData = JSON.parse(responseText);
-          } catch (e) {
-            console.error('Error al analizar JSON:', e.message);
-            this.errorMessage = 'Error al procesar los datos del usuario';
-            this.showErrorAlert = true;
-            setTimeout(() => {
-              this.showErrorAlert = false;
-            }, 3000);
-            return;
-          }
+        let userData;
+        try {
+          userData = await response.json();
+        } catch (e) {
+          // Mostrar mensaje específico de error solo si ocurre un error al procesar los datos
+          this.errorMessage = 'Correo o contraseña incorrecta';
+          this.showErrorAlert = true;
+          console.error('Error al procesar los datos del usuario:', e.message);
+          setTimeout(() => {
+            this.showErrorAlert = false;
+          }, 3000);
+          return; // Detener el proceso si hay un error en el procesamiento
         }
 
         const { usuCorreo, usuClave, usuRol, token, usuEstado } = userData;
@@ -228,16 +202,15 @@ export default {
             throw new Error('Rol de usuario desconocido');
           }
           this.failedAttempts = 0; // Restablecer el contador de intentos fallidos después de un inicio de sesión exitoso
-          this.showInactiveUserError = false;
+          this.showInactiveUserError = false; // Asegúrate de ocultar el mensaje de usuario inactivo después de un inicio de sesión exitoso
         } else {
           this.errorMessage = 'Usuario o contraseña incorrectos';
           this.showErrorAlert = true;
-          this.failedAttempts += 1;
+          this.failedAttempts += 1; // Incrementar el contador de intentos fallidos
 
-          // Mostrar mensaje de bloqueo si se alcanzaron 3 intentos fallidos
+          // Mostrar mensaje de usuario inactivo si ya se alcanzaron los 3 intentos fallidos
           if (this.failedAttempts >= 3) {
-            this.showBlockedUserError = true;
-            this.errorMessage = 'Usuario bloqueado después de 3 intentos fallidos.';
+            this.showInactiveUserError = true;
           }
 
           setTimeout(() => {
@@ -247,7 +220,7 @@ export default {
 
       } catch (error) {
         console.error('Error al iniciar sesión:', error.message);
-        this.errorMessage = 'Error al procesar los datos del usuario';
+        this.errorMessage = error.message;
         this.showErrorAlert = true;
         setTimeout(() => {
           this.showErrorAlert = false;
@@ -277,6 +250,8 @@ export default {
     }
   }
 };
+
+
 </script>
 
 
