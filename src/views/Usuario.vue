@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-background text-foreground p-4">
+  <div class="min-h-screen bg-background  bg-rose-50 text-foreground p-4">
     <header class="flex items-center justify-between p-4 bg-white shadow-2xl">
       <div class="flex items-center space-x-4">
         <img src="https://i.imgur.com/RCpUHKA.png" alt="Logo Multitrabajos" class="h-10">
@@ -65,6 +65,16 @@
               <span class="font-semibold text-blue-800">Profesión:</span>
               <span>{{ usuarioDatos.usuProfesion }}</span>
             </div>
+            <div class="flex justify-between">
+              <span class="font-semibold text-blue-800">Direccion:</span>
+              <span>{{ usuarioDatos.usuDireccion }}</span>
+            </div>
+            <div class="flex justify-between" v-if="usuarioDatos.proId !== undefined">
+              <span class="font-semibold text-blue-800">Provincia:</span>
+              <span>{{ obtenerNombreProvincia(usuarioDatos.proId) }}</span>
+            </div>
+
+
           </div>
           <!-- Sección para subir CV en PDF -->
           <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition mt-4">
@@ -83,22 +93,25 @@
       <main class="col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition">
           <h3 class="text-lg font-semibold text-blue-800">Publicaciones</h3>
-          <div v-if="publicaciones.length === 0" class="text-center text-muted-foreground mt-4">
+          <div v-if="publicaciones.length === 0" class="text-center text-gray-500 mt-4">
             No hay publicaciones disponibles.
           </div>
-          <div v-else class="mt-4 max-h-[calc(5*10rem)] overflow-y-auto">
-            <!-- Cambia 10rem a la altura real de cada publicación si es necesario -->
-            <div v-for="publicacion in publicaciones.slice(0, 10)" :key="publicacion.pubId"
+          <div v-else class="mt-4 max-h-[43rem] overflow-y-auto">
+            <!-- Ajusta max-h para mostrar aproximadamente 4 publicaciones -->
+            <!-- Muestra todas las publicaciones -->
+            <div v-for="publicacion in publicaciones" :key="publicacion.pubId"
               class="relative bg-gray-100 p-4 rounded-lg border border-gray-300 shadow-md mb-4">
-              <button @click="applyForPublication(publicacion)"
-                class="absolute top-20 right-6 bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition">
-                Postularme Ya
-              </button>
+              <div class="flex flex-col space-y-2 absolute top-4 right-4">
+                <!-- Contenedor flex para los botones -->
+                <button @click="verPublicacion(publicacion.pubId)"
+                  class="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition">
+                  Ver publicación
+                </button>
+              </div>
               <h4 class="text-lg font-semibold text-blue-800">{{ publicacion.pubTitulo }}</h4>
               <p class="text-md mt-2 text-gray-700">{{ publicacion.pubTema }}</p>
               <p class="mt-2">{{ publicacion.pubDescripcion }}</p>
               <p class="mt-2 font-bold">Salario: ${{ publicacion.pubSalario }}</p>
-              <p class="mt-2 text-gray-600">Fecha: {{ new Date(publicacion.pubFecha).toLocaleDateString() }}</p>
             </div>
           </div>
         </section>
@@ -112,35 +125,40 @@
               Añadir Experiencia
             </button>
           </div>
-          <div v-if="experiencias.length === 0" class="text-center text-muted-foreground">
+          <div v-if="experiencias.length === 0" class="text-center text-gray-500">
             No hay experiencias disponibles.
           </div>
-          <div v-else>
-            <ul class="space-y-4">
-              <li v-for="(exp, index) in experiencias" :key="index"
-                class="bg-gray-100 p-4 rounded-md border border-gray-300 shadow-md flex items-start justify-between">
-                <div class="flex-grow">
-                  <h4 class="text-md font-semibold text-blue-700">{{ exp.expTitulo }}</h4>
-                  <p class="text-sm text-gray-600"><strong>Puesto:</strong> {{ exp.expPuesto }}</p>
-                  <p class="text-sm text-gray-600"><strong>Descripción:</strong> {{ exp.expDescripcion }}</p>
-                  <p class="text-sm text-gray-600"><strong>Fecha de Inicio:</strong> {{ new
-                    Date(exp.expFechaInicio).toLocaleDateString() }}</p>
-                  <p class="text-sm text-gray-600"><strong>Fecha de Finalización:</strong> {{ new
-                    Date(exp.expFechaFinalizacion).toLocaleDateString() }}</p>
-                </div>
-                <div class="flex space-x-2">
-                  <button @click="openEditModal(exp)"
-                    class="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition flex items-center justify-center">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button @click="openDeleteModal(exp)"
-                    class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition flex items-center justify-center">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </li>
-            </ul>
+          <div v-else class="relative">
+            <div class="overflow-y-auto max-h-50 pr-2"> <!-- Ajusta la altura máxima aquí -->
+              <ul class="space-y-4">
+                <li v-for="(exp, index) in experiencias" :key="index"
+                  class="bg-gray-100 p-4 rounded-md border border-gray-300 shadow-md flex items-start justify-between">
+                  <div class="flex-grow">
+                    <h4 class="text-md font-semibold text-blue-700">{{ exp.expTitulo }}</h4>
+                    <p class="text-sm text-gray-600"><strong>Puesto:</strong> {{ exp.expPuesto }}</p>
+                    <p class="text-sm text-gray-600"><strong>Descripción:</strong> {{ exp.expDescripcion }}</p>
+                    <p class="text-sm text-gray-600"><strong>Fecha de Inicio:</strong> {{ new
+                      Date(exp.expFechaInicio).toLocaleDateString() }}</p>
+                    <p class="text-sm text-gray-600"><strong>Fecha de Finalización:</strong> {{ new
+                      Date(exp.expFechaFinalizacion).toLocaleDateString() }}</p>
+                  </div>
+                  <div class="flex space-x-2">
+                    <button @click="openEditModal(exp)"
+                      class="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 transition flex items-center justify-center">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button @click="openDeleteModal(exp)"
+                      class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition flex items-center justify-center">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
+          <br>
+          <br>
+          
           <!-- Sección de Estudios -->
           <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition mt-4">
             <div class="flex items-center justify-between mb-4">
@@ -150,10 +168,10 @@
                 Añadir Estudio
               </button>
             </div>
-            <div v-if="estudios.length === 0" class="text-center text-muted-foreground">
+            <div v-if="estudios.length === 0" class="text-center text-gray-500">
               No hay estudios disponibles.
             </div>
-            <div v-else>
+            <div v-else class="overflow-y-auto max-h-40"> <!-- Ajusta la altura máxima aquí -->
               <ul class="space-y-4">
                 <li v-for="(estudio, index) in estudios" :key="index"
                   class="bg-gray-100 p-4 rounded-md border border-gray-300 shadow-md flex items-start justify-between">
@@ -177,7 +195,6 @@
             </div>
           </section>
         </section>
-
 
       </main>
     </div>
@@ -417,6 +434,7 @@ export default {
         esEstado: 'A'
       },
       usuarioDatos: {},
+      provinces: [],
       uploadError: '',
       showSuccessAlert: false,
       successMessage: '',
@@ -430,11 +448,35 @@ export default {
     this.obtenerExperiencias();
     this.obtenerEstudios();
     this.fetchEstudios();
+    this.obtenerProvincias();
   },
   methods: {
     toggleMenu() {
       this.menuVisible = !this.menuVisible;
 
+    },
+    verPublicacion(pubId) {
+      this.$router.push({ name: 'VerPublicacion', params: { pubId } });
+    },
+    async obtenerProvincias() {
+      try {
+        const response = await axios.get('http://172.24.0.11:5001/api/provincias');
+        if (response.status === 200) {
+          this.provincias = response.data || []; // Asegúrate de que `provincias` sea un array
+        }
+      } catch (error) {
+        console.error('Error al obtener provincias:', error);
+      }
+    },
+    obtenerNombreProvincia(proId) {
+      // Asegúrate de que `this.provincias` esté definido y sea un array
+      if (!this.provincias || !Array.isArray(this.provincias)) {
+        console.error('Las provincias no están disponibles.');
+        return 'Nombre de provincia no disponible';
+      }
+
+      const provincia = this.provincias.find(p => p.proId === proId);
+      return provincia ? provincia.proNombre : 'Nombre de provincia no disponible';
     },
     buscarEmpleo() {
       // Obtiene todas las publicaciones primero

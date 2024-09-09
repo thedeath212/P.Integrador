@@ -133,35 +133,68 @@ export default {
           }),
         });
 
+        // Verificar si la respuesta no es OK
         if (!response.ok) {
-          const errorText = await response.text();
-          this.errorMessage = errorText || 'Credenciales inválidas';
-          this.showErrorAlert = true;
-          this.failedAttempts += 1; // Incrementar el contador de intentos fallidos
-          
-          // Mostrar mensaje de usuario inactivo si ya se alcanzaron los 3 intentos fallidos
-          if (this.failedAttempts >= 3) {
-            this.showInactiveUserError = true;
+          // Intentar obtener el texto de la respuesta
+          const responseText = await response.text();
+
+          // Verificar si hay contenido en la respuesta
+          if (responseText) {
+            try {
+              const responseData = JSON.parse(responseText);
+              const { usuIntentos } = responseData;
+
+              if (usuIntentos >= 3) {
+                this.errorMessage = 'Usuario bloqueado después de 3 intentos fallidos.';
+                this.showBlockedUserError = true;
+                this.failedAttempts = 3; // Establecer intentos fallidos al máximo para bloquear
+              } else {
+                this.errorMessage = `Credenciales inválidas. ${3 - usuIntentos} intento(s) restante(s) antes de bloquear.`;
+                this.showErrorAlert = true;
+                this.failedAttempts = usuIntentos; // Sincronizar el contador local con el del servidor
+              }
+
+              setTimeout(() => {
+                this.showErrorAlert = false;
+                this.showBlockedUserError = false;
+              }, 3000);
+            } catch (e) {
+              console.error('Error al analizar JSON:', e.message);
+              this.errorMessage = 'Error al procesar la respuesta del servidor';
+              this.showErrorAlert = true;
+              setTimeout(() => {
+                this.showErrorAlert = false;
+              }, 3000);
+            }
+          } else {
+            this.errorMessage = 'Error al procesar la respuesta del servidor';
+            this.showErrorAlert = true;
+            setTimeout(() => {
+              this.showErrorAlert = false;
+            }, 3000);
           }
-          
-          setTimeout(() => {
-            this.showErrorAlert = false;
-          }, 3000);
+
           return;
         }
 
-        let userData;
-        try {
-          userData = await response.json();
-        } catch (e) {
-          // Mostrar mensaje específico de error solo si ocurre un error al procesar los datos
-          this.errorMessage = 'Correo o contraseña incorrecta';
-          this.showErrorAlert = true;
-          console.error('Error al procesar los datos del usuario:', e.message);
-          setTimeout(() => {
-            this.showErrorAlert = false;
-          }, 3000);
-          return; // Detener el proceso si hay un error en el procesamiento
+        // Procesar los datos del usuario si la respuesta es exitosa
+        let userData = {};
+
+        // Intentar analizar la respuesta JSON
+        const responseText = await response.text();
+
+        if (responseText) {
+          try {
+            userData = JSON.parse(responseText);
+          } catch (e) {
+            console.error('Error al analizar JSON:', e.message);
+            this.errorMessage = 'Error al procesar los datos del usuario';
+            this.showErrorAlert = true;
+            setTimeout(() => {
+              this.showErrorAlert = false;
+            }, 3000);
+            return;
+          }
         }
 
         const { usuCorreo, usuClave, usuRol, token, usuEstado } = userData;
@@ -195,17 +228,18 @@ export default {
             throw new Error('Rol de usuario desconocido');
           }
           this.failedAttempts = 0; // Restablecer el contador de intentos fallidos después de un inicio de sesión exitoso
-          this.showInactiveUserError = false; // Asegúrate de ocultar el mensaje de usuario inactivo después de un inicio de sesión exitoso
+          this.showInactiveUserError = false;
         } else {
           this.errorMessage = 'Usuario o contraseña incorrectos';
           this.showErrorAlert = true;
-          this.failedAttempts += 1; // Incrementar el contador de intentos fallidos
-          
-          // Mostrar mensaje de usuario inactivo si ya se alcanzaron los 3 intentos fallidos
+          this.failedAttempts += 1;
+
+          // Mostrar mensaje de bloqueo si se alcanzaron 3 intentos fallidos
           if (this.failedAttempts >= 3) {
-            this.showInactiveUserError = true;
+            this.showBlockedUserError = true;
+            this.errorMessage = 'Usuario bloqueado después de 3 intentos fallidos.';
           }
-          
+
           setTimeout(() => {
             this.showErrorAlert = false;
           }, 3000);
@@ -213,7 +247,7 @@ export default {
 
       } catch (error) {
         console.error('Error al iniciar sesión:', error.message);
-        this.errorMessage = error.message;
+        this.errorMessage = 'Error al procesar los datos del usuario';
         this.showErrorAlert = true;
         setTimeout(() => {
           this.showErrorAlert = false;
@@ -243,8 +277,6 @@ export default {
     }
   }
 };
-
-
 </script>
 
 
