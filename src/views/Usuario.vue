@@ -20,8 +20,10 @@
           </svg>
         </button>
         <div v-if="menuVisible" class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-2xl z-10">
-          <router-link to="/postulaciones">
-            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver Postulaciones</button>
+          <router-link :to="{ name: 'PostuPage', params: { usuId: usuarioDatos.usuId } }">
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">
+              Ver Postulaciones
+            </button>
           </router-link>
           <router-link :to="`/perfil/${usuarioDatos.usuId}`">
             <button class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver Perfil</button>
@@ -58,7 +60,7 @@
               <span>{{ obtenerSexo(usuarioDatos.usuSexo) }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="font-semibold text-blue-800">Fecha de Nacimiento:</span>
+              <span class="font-semibold text-blue-800" max="maxDate">Fecha de Nacimiento:</span>
               <span>{{ formatFecha(usuarioDatos.usuFechaNacimiento) }}</span>
             </div>
             <div class="flex justify-between">
@@ -85,7 +87,6 @@
               class="bg-primary text-primary-foreground p-2 rounded-md mt-4 hover:bg-primary/80 transition">
               Subir PDF
             </button>
-
           </section>
         </div>
       </aside>
@@ -102,11 +103,11 @@
             <div v-for="publicacion in publicaciones" :key="publicacion.pubId"
               class="relative bg-gray-100 p-4 rounded-lg border border-gray-300 shadow-md mb-4">
               <div class="flex flex-col space-y-2 absolute top-4 right-4">
-                <!-- Contenedor flex para los botones -->
-                <button @click="verPublicacion(publicacion.pubId)"
+                <button @click="verPublicacion(publicacion.pubId, usuarioDatos.usuId)"
                   class="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition">
                   Ver publicación
                 </button>
+
               </div>
               <h4 class="text-lg font-semibold text-blue-800">{{ publicacion.pubTitulo }}</h4>
               <p class="text-md mt-2 text-gray-700">{{ publicacion.pubTema }}</p>
@@ -139,7 +140,7 @@
                     <p class="text-sm text-gray-600"><strong>Descripción:</strong> {{ exp.expDescripcion }}</p>
                     <p class="text-sm text-gray-600"><strong>Fecha de Inicio:</strong> {{ new
                       Date(exp.expFechaInicio).toLocaleDateString() }}</p>
-                    <p class="text-sm text-gray-600"><strong>Fecha de Finalización:</strong> {{ new
+                    <p class="text-sm text-gray-600" max="maxDate"><strong>Fecha de Finalización:</strong> {{ new
                       Date(exp.expFechaFinalizacion).toLocaleDateString() }}</p>
                   </div>
                   <div class="flex space-x-2">
@@ -158,7 +159,7 @@
           </div>
           <br>
           <br>
-          
+
           <!-- Sección de Estudios -->
           <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition mt-4">
             <div class="flex items-center justify-between mb-4">
@@ -225,7 +226,7 @@
                     required>
                 </div>
                 <div>
-                  <label class="block text-gray-700">Fecha de Finalización:</label>
+                  <label max="maxDate" class="block text-gray-700">Fecha de Finalización:</label>
                   <input v-model="nuevaExperiencia.expFechaFinalizacion" type="date"
                     class="border rounded-md p-2 w-full" required>
                 </div>
@@ -270,7 +271,7 @@
                 </div>
                 <div>
                   <label class="block text-gray-700">Fecha de Finalización:</label>
-                  <input v-model="experienciaEditada.expFechaFinalizacion" type="date"
+                  <input max="maxDate" v-model="experienciaEditada.expFechaFinalizacion" type="date"
                     class="border rounded-md p-2 w-full" required>
                 </div>
               </div>
@@ -401,6 +402,7 @@ export default {
       showEditStudyModal: false,
       showDeleteStudyModal: false,
       selectedStudy: null,
+      selectedDate: '',
       experiencias: [],
       publicaciones: [],
       estudios: [],
@@ -455,8 +457,14 @@ export default {
       this.menuVisible = !this.menuVisible;
 
     },
-    verPublicacion(pubId) {
-      this.$router.push({ name: 'VerPublicacion', params: { pubId } });
+    maxDate() {
+      // Obtener la fecha actual y formatearla a 'YYYY-MM-DD'
+      const today = new Date();
+      return today.toISOString().split('T')[0];
+    },
+    verPublicacion(pubId, usuId) {
+      // Navegar a la vista de la publicación específica con ambos parámetros
+      this.$router.push({ name: 'VerPublicacion', params: { pubId, usuId } });
     },
     async obtenerProvincias() {
       try {
@@ -489,25 +497,7 @@ export default {
         });
       });
     },
-    async handleCurriculumChange(event) {
-      const curriculumFile = event.target.files[0];
-      const formData = new FormData();
-      formData.append('curriculum', curriculumFile);
 
-      try {
-        const response = await axios.post('http://172.24.0.11:5001/api/curriculums', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-
-        if (response.status === 201) {
-          this.userProfileImage = response.data.CumId;
-        }
-      } catch (error) {
-        console.error('Error al subir el currículum:', error);
-      }
-    },
     async obtenerDatosUsuario() {
       try {
         const correo = localStorage.getItem('userCorreo');
@@ -529,6 +519,47 @@ export default {
         }
       } catch (error) {
         console.error('Error:', error);
+      }
+    },
+    handleCurriculumChange(event) {
+      const file = event.target.files[0];
+      if (file && file.type === 'application/pdf') {
+        this.selectedPDF = file;
+        this.uploadError = '';
+      } else {
+        this.uploadError = 'Por favor selecciona un archivo PDF válido.';
+        this.selectedPDF = null;
+      }
+    },
+    async uploadPDF() {
+      if (!this.selectedPDF) {
+        this.uploadError = 'No has seleccionado un archivo.';
+        return;
+      }
+
+      if (!this.usuarioDatos || !this.usuarioDatos.usuId) {
+        this.uploadError = 'No se encontró el ID del usuario.';
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append('pdf', this.selectedPDF);
+        formData.append('id', this.usuarioDatos.usuId);
+
+        const response = await axios.post('http://172.24.0.11:5001/api/Usuario/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (response.data.success) {
+          alert('CV subido correctamente.');
+        } else {
+          this.uploadError = response.data.message || 'Archivo Subido Correctamente';
+        }
+      } catch (error) {
+        this.uploadError = error.response?.data?.message || 'Error al subir el archivo: ' + error.message;
       }
     },
     formatFecha(date) {
@@ -603,29 +634,6 @@ export default {
         this.$router.push('/login'); // Cambia '/login' por la ruta de tu página de inicio de sesión
       } catch (error) {
         console.error('Error al cerrar sesión:', error);
-      }
-    },
-    async uploadPDF() {
-      if (!this.selectedFile) {
-        this.uploadError = 'Por favor, selecciona un archivo PDF para subir.';
-        return;
-      }
-      const formData = new FormData();
-      formData.append('file', this.selectedFile);
-
-      try {
-        await axios.post('http://172.24.0.11:5001/api/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-
-        this.successMessage = 'CV subido exitosamente.';
-        this.showSuccessAlert = true;
-        this.uploadError = '';
-      } catch (error) {
-        this.uploadError = 'Error al subir el archivo. Inténtalo de nuevo.';
-        console.error('Error al subir el archivo:', error);
       }
     },
     async obtenerEstudios() {

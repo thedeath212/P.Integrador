@@ -69,7 +69,6 @@
             <p class="text-gray-600 mb-4">{{ publicacion.pubDescripcion }}</p>
             <p><strong>Tema:</strong> {{ publicacion.pubTema }}</p>
             <p><strong>Rol:</strong> {{ getRol(publicacion.pubRol) }}</p>
-            <p><strong>Usuario:</strong> {{ getNombreUsuario(publicacion.usuId) }}</p>
             <p><strong>Salario:</strong> {{ publicacion.pubSalario }}</p>
             <p><strong>Fecha:</strong> {{ publicacion.pubFecha }}</p>
             <p><strong>Estado:</strong> {{ publicacion.pubEstado }}</p>

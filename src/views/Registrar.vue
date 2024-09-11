@@ -208,7 +208,7 @@ export default {
           limpiarCampos();
 
           setTimeout(() => {
-            router.push('/usuarios');
+            router.push('/login');
           }, 1000);
         })
         .catch(error => {

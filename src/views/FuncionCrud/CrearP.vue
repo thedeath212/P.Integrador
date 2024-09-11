@@ -121,7 +121,7 @@ export default {
                 pubRol: '',
                 pubSalario: null,
                 pubFecha: '', // Campo de fecha añadido
-                usuId: 2, // usuId quemado como 2
+                comId: 3, // usuId quemado como 2
                 pubEstado: 'A' // Estado quemado 'A'
             },
             errors: {
@@ -176,7 +176,7 @@ export default {
                     pubTema: this.form.pubTema,
                     pubRol: this.form.pubRol,
                     pubDescripcion: this.form.pubDescripcion,
-                    usuId: this.form.usuId,
+                    comId: this.form.usuId,
                     pubSalario: this.form.pubSalario,
                     pubFecha: this.form.pubFecha, // Enviar pubFecha
                     pubEstado: 'A'

@@ -91,8 +91,9 @@
               <p><strong>Fecha:</strong> {{ publicacion.pubFecha }}</p>
               <p><strong>Estado:</strong> {{ publicacion.pubEstado }}</p>
               <div class="mt-4 flex justify-end space-x-2">
-                <router-link :to="'/editar-publicacion/' + publicacion.pubId"
-                  class="bg-yellow-500 text-white py-2 px-4 rounded">Editar</router-link>
+                <button @click="openEditModal(publicacion)"
+                  class="bg-yellow-500 text-white py-2 px-4 rounded">Editar</button>
+
                 <button @click="confirmarEliminacion(publicacion.pubId)"
                   class="bg-red-500 text-white py-2 px-4 rounded">Eliminar</button>
               </div>
@@ -144,7 +145,46 @@
         </div>
       </div>
     </transition>
-
+    <transition name="fade">
+      <div v-if="editModalVisible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="relative bg-white p-12 rounded-lg shadow-lg max-w-4xl mx-auto z-10">
+          <h3 class="text-3xl font-semibold mb-8">Editar Publicación</h3>
+          <form @submit.prevent="editarPublicacion">
+            <!-- Campos del formulario -->
+            <div class="mb-8">
+              <label for="editPubTitulo" class="block text-xl font-medium text-gray-700">Título</label>
+              <input v-model="selectedPublication.pubTitulo" id="editPubTitulo" type="text"
+                class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-lg px-4 py-3 h-12"
+                required>
+            </div>
+            <div class="mb-8">
+              <label for="editPubTema" class="block text-xl font-medium text-gray-700">Tema</label>
+              <input v-model="selectedPublication.pubTema" id="editPubTema" type="text"
+                class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-lg px-4 py-3 h-12"
+                required>
+            </div>
+            <div class="mb-8">
+              <label for="editPubDescripcion" class="block text-xl font-medium text-gray-700">Descripción</label>
+              <textarea v-model="selectedPublication.pubDescripcion" id="editPubDescripcion"
+                class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-lg px-4 py-3 h-24"
+                required></textarea>
+            </div>
+            <div class="mb-8">
+              <label for="editPubSalario" class="block text-xl font-medium text-gray-700">Salario</label>
+              <input v-model="selectedPublication.pubSalario" id="editPubSalario" type="number"
+                class="mt-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-lg px-4 py-3 h-12"
+                required>
+            </div>
+            <button type="button" @click="closeEditModal"
+              class="bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600 transition">Cancelar</button>
+            <button :disabled="isSubmitting" @click="editarPublicacion"
+              class="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition">
+              {{ isSubmitting ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </transition>
     <!-- Modal de confirmación de eliminación -->
     <transition name="fade" enter-active-class="transition ease-out duration-300" enter-class="opacity-0"
       enter-to-class="opacity-100" leave-active-class="transition ease-in duration-200" leave-class="opacity-100"
@@ -182,6 +222,7 @@ export default {
       successMessage: '',
       errorMessage: '',
       menuVisible: false,
+      editModalVisible: false,
       publicacionesFiltradas: [],
       modalVisible: false,
       isSubmitting: false, // Agregado para manejar el estado de envío
@@ -226,6 +267,13 @@ export default {
   methods: {
     toggleMenu() {
       this.menuVisible = !this.menuVisible;
+    },
+    openEditModal(publicacion) {
+      this.selectedPublication = { ...publicacion }; // Clonar la publicación seleccionada
+      this.editModalVisible = true;
+    },
+    closeEditModal() {
+      this.editModalVisible = false;
     },
     cerrarSesion() {
       localStorage.removeItem('authToken');
@@ -301,7 +349,7 @@ export default {
           pubTema: this.newPublication.pubTema,
           pubDescripcion: this.newPublication.pubDescripcion,
           pubSalario: this.newPublication.pubSalario,
-          usuId: this.empresa.id, // Usa el ID de la empresa si es aplicable
+          comId: this.empresa.id, // Usa el ID de la empresa si es aplicable
           pubEstado: 'A',
           pubRol: 2,
           pubFecha: new Date().toISOString()
@@ -309,11 +357,45 @@ export default {
 
         console.log('Publicación creada:', response.data);
         this.successMessage = 'Publicación creada exitosamente.';
-        this.modalVisible = false;
         this.resetForm();
+        this.modalVisible = false;
+
+        // Recargar la página después de la creación exitosa
+        window.location.reload();
       } catch (error) {
         console.error('Error al crear la publicación:', error.response ? error.response.data : error.message);
         this.errorMessage = 'Error al crear la publicación.';
+      } finally {
+        this.isSubmitting = false; // Restaura el estado de envío
+      }
+    },
+    async editarPublicacion() {
+      if (this.isSubmitting) return; // Evita envíos múltiples
+
+      this.isSubmitting = true;
+      try {
+        // Verifica que selectedPublication tenga valores válidos
+        if (!this.selectedPublication || !this.selectedPublication.pubId) {
+          throw new Error('Publicación seleccionada no válida.');
+        }
+
+        const response = await axios.put(
+          `http://172.24.0.11:5001/api/publicaciones/${this.selectedPublication.pubId}`,
+          {
+            pubTitulo: this.selectedPublication.pubTitulo,
+            pubTema: this.selectedPublication.pubTema,
+            pubDescripcion: this.selectedPublication.pubDescripcion,
+            pubSalario: this.selectedPublication.pubSalario,
+          }
+        );
+
+        console.log('Publicación actualizada:', response.data);
+        this.successMessage = 'Publicación actualizada exitosamente.';
+        this.closeEditModal(); // Cierra el modal
+        await this.fetchPublicaciones(); // Actualiza la lista de publicaciones
+      } catch (error) {
+        console.error('Error al actualizar la publicación:', error.response ? error.response.data : error.message);
+        this.errorMessage = 'Error al actualizar la publicación.';
       } finally {
         this.isSubmitting = false; // Restaura el estado de envío
       }
@@ -353,14 +435,15 @@ export default {
         if (!this.empresa.id) {
           throw new Error('El ID de la empresa no está definido.');
         }
-        const response = await axios.get(`http://172.24.0.11:5001/api/publicaciones`);
+        const response = await axios.get('http://172.24.0.11:5001/api/publicaciones');
         console.log('Publicaciones obtenidas:', response.data);
         console.log('ID de la empresa:', this.empresa.id);
 
         // Aplicar el filtro
         this.publicacionesFiltradas = response.data.filter(publicacion => {
-          console.log('Comparando:', publicacion.usuId, 'con', this.empresa.id);
-          return publicacion.usuId === this.empresa.id;
+          console.log('Comparando:', publicacion.comId, 'con', this.empresa.id);
+          // Filtrar por ID de la empresa y estado "A"
+          return publicacion.comId === this.empresa.id && publicacion.pubEstado === 'A';
         });
 
         console.log('Publicaciones filtradas:', this.publicacionesFiltradas);
@@ -369,6 +452,7 @@ export default {
         this.errorMessage = error.message;
       }
     }
+
   }
 };
 </script>

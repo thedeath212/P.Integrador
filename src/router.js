@@ -139,21 +139,21 @@ const routes = [
     component: PerfilEmpresa,
     props: true,
     meta: { requiresAuth: true }
-  }  ,
+  },
   {
-    path: '/postulaciones',
+    path: '/postulaciones/:usuId',
     name: 'PostuPage',
     component: PostuPage,
     meta: { requiresAuth: true }
   },
   {
-    path: '/ver-publicacion/:pubId',
+    path: '/ver-publicacion/:pubId/:usuId',
     name: 'VerPublicacion',
-    component: VerPublicacion,
+    component: VerPublicacion ,
     props: true,
     meta: { requiresAuth: true }
-  } 
-   
+  }
+
 ];
 
 // Creación del router

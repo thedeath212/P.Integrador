@@ -49,6 +49,9 @@
         <p class="mt-4 text-center text-muted-foreground">
           <router-link to="/rempesas" class="text-pink-600 hover:underline">Regístrate como empresa</router-link>
         </p>
+        <p class="mt-4 text-center text-muted-foreground">
+          <button @click="openPasswordRecoveryModal" class="text-pink-600 hover:underline">Olvidaste tu contraseña?</button>
+        </p>
       </div>
       <div class="hidden md:block w-1/2 p-4">
         <img src="https://i.imgur.com/rteOfkV.png" alt="Ilustración de una empresa" />
@@ -64,16 +67,20 @@
         <AppAlert type="error" :message="errorMessage" />
       </div>
     </transition>
+    <!-- Modal de recuperación de contraseña -->
+    <PasswordRecoveryModalE :showModal="showPasswordRecoveryModal" @close="showPasswordRecoveryModal = false" />
   </div>
 </template>
 
 <script>
 import AppAlert from '../components/Alert.vue';
+import PasswordRecoveryModalE from '../components/PasswordRecoveryModalE.vue';
 
 export default {
   name: 'LoginEmpresaPage',
   components: {
-    AppAlert
+    AppAlert,
+    PasswordRecoveryModalE
   },
   data() {
     return {
@@ -85,7 +92,8 @@ export default {
       showErrorAlert: false,
       successMessage: '',
       errorMessage: '',
-      comEncargado: '' // Variable para almacenar el nombre del encargado
+      showPasswordRecoveryModal: false, // Variable para controlar la visibilidad del modal
+      comEncargado: ''
     };
   },
   methods: {
@@ -186,6 +194,9 @@ export default {
     },
     togglePasswordVisibility() {
       this.passwordVisible = !this.passwordVisible;
+    },
+    openPasswordRecoveryModal() {
+      this.showPasswordRecoveryModal = true;
     }
   }
 };
