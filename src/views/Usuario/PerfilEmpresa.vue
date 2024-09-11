@@ -17,9 +17,7 @@
                     <router-link to="/dashempresas">
                         <button class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Inicio</button>
                     </router-link>
-                    <router-link to="/postulacionesEmpresa">
-                        <button class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver Postulaciones</button>
-                    </router-link>
+                    
                 </div>
             </div>
         </header>

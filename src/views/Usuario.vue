@@ -43,6 +43,10 @@
           <h2 class="text-xl font-semibold text-blue-800">{{ usuarioDatos.usuNombres }} {{ usuarioDatos.usuApellidos }}
           </h2>
           <div class="space-y-2 mt-4 w-full">
+            <div v-show="false">
+              <span class="font-semibold text-blue-800">Cédula:</span>
+              <span>{{ usuarioDatos.usuId }}</span>
+            </div>
             <div class="flex justify-between">
               <span class="font-semibold text-blue-800">Cédula:</span>
               <span>{{ usuarioDatos.usuDni }}</span>
@@ -77,9 +81,27 @@
             </div>
 
 
+
           </div>
-          <!-- Sección para subir CV en PDF -->
-          <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition mt-4">
+          <!-- Sección para mostrar el nombre del archivo PDF encontrado -->
+          <section v-if="foundPDFName"
+            class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition mt-4">
+            <h3 class="text-lg font-semibold text-blue-800">Archivo PDF Encontrado</h3>
+            <p class="text-gray-700 mt-2">
+              {{ foundPDFName }}
+            </p>
+            <br>
+            <br>
+            <!-- Botón de descarga -->
+            <a :href="downloadURL" download
+              class="bg-blue-500 text-white p-2 rounded-md mt-4 hover:bg-blue-600 transition">
+              Descargar PDF
+            </a>
+          </section>
+
+          <!-- Sección para subir CV en PDF, oculta si ya existe un archivo PDF -->
+          <section v-if="!foundPDFName"
+            class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition mt-4">
             <h3 class="text-lg font-semibold text-blue-800">Subir CV en PDF</h3>
             <input type="file" accept=".pdf" @change="handleCurriculumChange" class="border rounded-md p-2 w-full">
             <p v-if="uploadError" class="text-red-500 mt-2">{{ uploadError }}</p>
@@ -88,6 +110,9 @@
               Subir PDF
             </button>
           </section>
+
+
+
         </div>
       </aside>
       <!-- Sección -->
@@ -394,6 +419,8 @@ export default {
     return {
       searchSalary: '',
       searchTitle: '',
+      downloadURL: '',
+      foundPDFName: '',
       menuVisible: false,
       editModalVisible: false,
       deleteModalVisible: false,
@@ -435,8 +462,10 @@ export default {
         esInstitucion: '',
         esEstado: 'A'
       },
+      userId: null,
       usuarioDatos: {},
       provinces: [],
+      userPDFs: [],
       uploadError: '',
       showSuccessAlert: false,
       successMessage: '',
@@ -444,13 +473,15 @@ export default {
       selectedFile: null,
     };
   },
-  mounted() {
-    this.obtenerDatosUsuario();
+  async mounted() {
+    this.usuarioDatos.usuId
+    await this.obtenerDatosUsuario();
     this.obtenerPublicaciones();
     this.obtenerExperiencias();
     this.obtenerEstudios();
     this.fetchEstudios();
     this.obtenerProvincias();
+    this.fetchUserPDFs();
   },
   methods: {
     toggleMenu() {
@@ -521,6 +552,37 @@ export default {
         console.error('Error:', error);
       }
     },
+    async fetchUserPDFs() {
+      try {
+        console.log('ID del usuario:', this.usuarioDatos.usuId);
+        const response = await axios.get('http://172.24.0.11:5001/api/Usuario/list');
+        console.log('Datos de la API:', response.data);
+
+        if (response.status === 200) {
+          if (Array.isArray(response.data)) {
+            const userId = parseInt(this.usuarioDatos.usuId, 10);
+            const userPDFs = response.data.filter(pdf => parseInt(pdf.userId, 10) === userId);
+            console.log('PDFs del usuario:', userPDFs);
+
+            if (userPDFs.length > 0) {
+              this.foundPDFName = userPDFs[0].fileName; // Asignar nombre del primer PDF encontrado
+              this.downloadURL = `http://172.24.0.11:5001/api/Usuario/download/${userId}`; // Configurar URL de descarga
+            } else {
+              this.foundPDFName = '';
+              this.downloadURL = '';
+            }
+          } else {
+            this.foundPDFName = '';
+            this.downloadURL = '';
+          }
+        } else {
+          console.error('Error en la respuesta de la API:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error al obtener los archivos PDF:', error);
+        this.uploadError = 'Error al obtener los archivos PDF.';
+      }
+    },
     handleCurriculumChange(event) {
       const file = event.target.files[0];
       if (file && file.type === 'application/pdf') {
@@ -536,8 +598,7 @@ export default {
         this.uploadError = 'No has seleccionado un archivo.';
         return;
       }
-
-      if (!this.usuarioDatos || !this.usuarioDatos.usuId) {
+      if (!this.usuarioDatos?.usuId) {
         this.uploadError = 'No se encontró el ID del usuario.';
         return;
       }
@@ -548,18 +609,30 @@ export default {
         formData.append('id', this.usuarioDatos.usuId);
 
         const response = await axios.post('http://172.24.0.11:5001/api/Usuario/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: { 'Content-Type': 'multipart/form-data' }
         });
 
         if (response.data.success) {
-          alert('CV subido correctamente.');
+          this.successMessage = 'CV subido correctamente.';
+          this.showSuccessAlert = true;
+          await this.fetchUserPDFs(); // Actualiza la lista de PDFs después de la subida
         } else {
-          this.uploadError = response.data.message || 'Archivo Subido Correctamente';
+          this.uploadError = response.data.message || 'Error al subir el archivo.';
         }
       } catch (error) {
-        this.uploadError = error.response?.data?.message || 'Error al subir el archivo: ' + error.message;
+        console.error('Error al subir el archivo:', error); // Log adicional para depuración
+
+        // Manejo mejorado de errores
+        if (error.response) {
+          // Error de respuesta del servidor
+          this.uploadError = error.response.data.message || 'Error en la respuesta del servidor.';
+        } else if (error.request) {
+          // Error de solicitud sin respuesta
+          this.uploadError = 'No se recibió respuesta del servidor.';
+        } else {
+          // Error al configurar la solicitud
+          this.uploadError = 'Error al configurar la solicitud: ' + error.message;
+        }
       }
     },
     formatFecha(date) {
@@ -790,6 +863,13 @@ export default {
       } catch (error) {
         console.error('Error al eliminar experiencia:', error);
       }
+    },
+    watch: {
+      'usuarioDatos.usuario.usuId'(newId) {
+        if (newId) {
+          this.fetchUserPDFs();
+        }
+      },
     }
   }
 };

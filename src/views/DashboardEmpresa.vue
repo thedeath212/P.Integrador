@@ -14,11 +14,13 @@
           </svg>
         </button>
         <div v-if="menuVisible" class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
-          <button @click="verPostulaciones" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver
-            postulaciones</button>
           <button @click="verPerfil(empresa.id)" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver
             perfil</button>
-
+          <router-link :to="{ name: 'PostulPage', params: { comId: empresa.id } }">
+            <button class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">
+              Ver Postulaciones
+            </button>
+          </router-link>
           <button @click="cerrarSesion" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Cerrar
             Sesión</button>
         </div>
@@ -150,6 +152,8 @@
         <div class="relative bg-white p-12 rounded-lg shadow-lg max-w-4xl mx-auto z-10">
           <h3 class="text-3xl font-semibold mb-8">Editar Publicación</h3>
           <form @submit.prevent="editarPublicacion">
+            <!-- Campo oculto para el ID -->
+            <input type="hidden" v-model="selectedPublication.pubId">
             <!-- Campos del formulario -->
             <div class="mb-8">
               <label for="editPubTitulo" class="block text-xl font-medium text-gray-700">Título</label>
@@ -177,7 +181,7 @@
             </div>
             <button type="button" @click="closeEditModal"
               class="bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600 transition">Cancelar</button>
-            <button :disabled="isSubmitting" @click="editarPublicacion"
+            <button :disabled="isSubmitting" type="submit"
               class="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition">
               {{ isSubmitting ? 'Guardando...' : 'Guardar' }}
             </button>
@@ -185,6 +189,7 @@
         </div>
       </div>
     </transition>
+
     <!-- Modal de confirmación de eliminación -->
     <transition name="fade" enter-active-class="transition ease-out duration-300" enter-class="opacity-0"
       enter-to-class="opacity-100" leave-active-class="transition ease-in duration-200" leave-class="opacity-100"
@@ -285,9 +290,6 @@ export default {
     verPerfil(comId) {
       this.$router.push({ name: 'PerfilEmpresa', params: { comId } });
     },
-    verPostulaciones() {
-      this.$router.push('/postulacionesEmpresa');
-    },
     async fetchCompanyData() {
       try {
         const token = localStorage.getItem('authToken');
@@ -374,28 +376,38 @@ export default {
 
       this.isSubmitting = true;
       try {
-        // Verifica que selectedPublication tenga valores válidos
-        if (!this.selectedPublication || !this.selectedPublication.pubId) {
-          throw new Error('Publicación seleccionada no válida.');
+        // Destructura el ID y los campos de la publicación seleccionada
+        const { pubId, pubTitulo, pubTema, pubDescripcion, pubSalario, comId } = this.selectedPublication;
+
+        // Asigna el valor fijo para pubRol y pubEstado
+        const pubRol = 2; // Valor fijo para pubRol
+        const pubEstado = 'A'; // Valor fijo para pubEstado
+
+        console.log('Selected Publication:', { pubId, pubTitulo, pubTema, pubDescripcion, pubSalario, comId, pubRol, pubEstado });
+
+        // Envía los datos ajustados a la API
+        const response = await axios.put(`http://172.24.0.11:5001/api/publicaciones/${pubId}`, {
+          pubId,
+          pubTitulo,
+          pubTema,
+          pubDescripcion,
+          pubSalario,
+          comId,
+          pubRol,
+          pubEstado
+        });
+
+        // Maneja la respuesta de éxito
+        if (response.status === 200) {
+          this.successMessage = 'Publicación actualizada correctamente.';
+          // Actualiza la lista de publicaciones
+          await this.fetchPublicaciones();
+          this.closeEditModal();
+        } else {
+          this.errorMessage = 'Error al actualizar la publicación. Inténtalo de nuevo.';
         }
-
-        const response = await axios.put(
-          `http://172.24.0.11:5001/api/publicaciones/${this.selectedPublication.pubId}`,
-          {
-            pubTitulo: this.selectedPublication.pubTitulo,
-            pubTema: this.selectedPublication.pubTema,
-            pubDescripcion: this.selectedPublication.pubDescripcion,
-            pubSalario: this.selectedPublication.pubSalario,
-          }
-        );
-
-        console.log('Publicación actualizada:', response.data);
-        this.successMessage = 'Publicación actualizada exitosamente.';
-        this.closeEditModal(); // Cierra el modal
-        await this.fetchPublicaciones(); // Actualiza la lista de publicaciones
       } catch (error) {
-        console.error('Error al actualizar la publicación:', error.response ? error.response.data : error.message);
-        this.errorMessage = 'Error al actualizar la publicación.';
+        this.errorMessage = `Error: ${error.message}`;
       } finally {
         this.isSubmitting = false; // Restaura el estado de envío
       }

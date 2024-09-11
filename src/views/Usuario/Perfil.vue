@@ -17,10 +17,6 @@
                     <router-link to="/user">
                         <button class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Inicio</button>
                     </router-link>
-                    <router-link to="/postulaciones">
-                        <button class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Ver
-                            Postulaciones</button>
-                    </router-link>
 
                     <button @click="cerrarSesion" class="w-full text-left px-4 py-2 hover:bg-gray-100 transition">Cerrar
                         sesión</button>

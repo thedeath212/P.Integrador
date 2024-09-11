@@ -21,6 +21,9 @@ import PostuPage from './views/Usuario/Postulaciones.vue';
 import PerfilPage from './views/Usuario/Perfil.vue';
 import VerPublicacion from './views/Usuario/VerPubli.vue';
 import PerfilEmpresa from './views/Usuario/PerfilEmpresa.vue';
+import PublicacionDetalle from './views/Usuario/Detalle.vue'
+import PostulPage from './views/Usuario/VerPostulacionE.vue'
+import VerDetalleUsuario from './views/Usuario/DetalleUser.vue'
 // Definición de rutas
 const routes = [
   // Sección Principal
@@ -152,6 +155,25 @@ const routes = [
     component: VerPublicacion ,
     props: true,
     meta: { requiresAuth: true }
+  } ,
+   {
+    path: '/ver-publicacion/:pubId',
+    name: 'PublicacionDetalle',
+    component: PublicacionDetalle ,
+    props: true,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/postulaciones/:comId',
+    name: 'PostulPage',
+    component: PostulPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/ver-detalle/:usuId',
+    name: 'VerDetalleUsuario',
+    component: VerDetalleUsuario,
+    props: true
   }
 
 ];
