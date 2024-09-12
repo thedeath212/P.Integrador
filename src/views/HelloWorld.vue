@@ -3,9 +3,6 @@
     <header class="flex justify-between items-center p-4 bg-white shadow">
       <img src="../assets/MultiEmpleo.png" alt="multitrabajos logo" class="h-10">
       <nav class="hidden md:flex space-x-4">
-        <a href="#" class="text-zinc-600 hover:text-zinc-800">Buscar empresas</a>
-        <a href="#" class="text-zinc-600 hover:text-zinc-800">Jóvenes profesionales</a>
-        <a href="#" class="text-zinc-600 hover:text-zinc-800">Puestos ejecutivos</a>
       </nav>
       <div class="flex space-x-4">
         <router-link to="/register" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Crear cuenta</router-link>

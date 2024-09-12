@@ -13,6 +13,17 @@
     <div class="container mx-auto p-6">
       <h1 class="text-2xl font-semibold mb-4">Mis Postulaciones</h1>
 
+      <!-- Filtro por estado -->
+      <div class="mb-4">
+        <label for="estado" class="block mb-2 font-semibold">Filtrar por estado:</label>
+        <select id="estado" v-model="estadoSeleccionado" class="border border-gray-300 rounded p-2">
+          <option value="">Todos</option>
+          <option value="P">Pendiente</option>
+          <option value="A">Aprobada</option>
+          <option value="R">Rechazada</option>
+        </select>
+      </div>
+
       <!-- Si no hay postulaciones, mostrar un mensaje -->
       <div v-if="postulacionesFiltradas.length === 0" class="text-center text-gray-600">
         No tienes postulaciones disponibles.
@@ -73,12 +84,14 @@ export default {
   name: 'PostuPage',
   data() {
     return {
+      postulaciones: [],
       postulacionesFiltradas: [],
       empresas: [],
       publicaciones: [],
       usuId: null,
       mostrarModal: false,
-      idPostulacionAEliminar: null
+      idPostulacionAEliminar: null,
+      estadoSeleccionado: '' // Nuevo filtro por estado
     };
   },
   methods: {
@@ -100,8 +113,6 @@ export default {
     },
     obtenerTituloPublicacion(pubId) {
       const publicacion = this.publicaciones.find(p => p.pubId === pubId);
-      console.log('ID publicación buscada:', pubId);
-      console.log('Publicación encontrada:', publicacion);
       return publicacion ? publicacion.pubTitulo : 'No disponible';
     },
     async fetchData() {
@@ -112,14 +123,7 @@ export default {
           axios.get('http://172.24.0.11:5001/api/publicaciones')
         ]);
 
-        // Verificar datos de respuesta
-        console.log('Postulaciones:', postulacionesResponse.data);
-        console.log('Empresas:', empresasResponse.data);
-        console.log('Publicaciones:', publicacionesResponse.data);
-
-        // Filtrar las postulaciones que tienen estado 'P', 'A' o 'R', tienen un usuario que coincide con `usuId`, 
-        // y tienen un `posPublicacion` que no es null
-        this.postulacionesFiltradas = postulacionesResponse.data.filter(postulacion =>
+        this.postulaciones = postulacionesResponse.data.filter(postulacion =>
           ['P', 'A', 'R'].includes(postulacion.posEstado) &&
           Number(postulacion.posUsuario) === this.usuId &&
           postulacion.posPublicacion !== null
@@ -127,13 +131,16 @@ export default {
         this.empresas = empresasResponse.data;
         this.publicaciones = publicacionesResponse.data;
 
-        // Verificar el contenido de publicaciones
-        console.log('Contenido de publicaciones:', this.publicaciones);
+        this.filtrarPostulaciones();
       } catch (error) {
         console.error('Error al obtener datos:', error);
       }
     },
-
+    filtrarPostulaciones() {
+      this.postulacionesFiltradas = this.postulaciones.filter(postulacion => 
+        this.estadoSeleccionado === '' || postulacion.posEstado === this.estadoSeleccionado
+      );
+    },
     confirmarEliminacion(postulacionId) {
       this.idPostulacionAEliminar = postulacionId;
       this.mostrarModal = true;
@@ -141,11 +148,9 @@ export default {
     async eliminarPostulacion() {
       if (this.idPostulacionAEliminar) {
         try {
-          // Usar POST en lugar de DELETE para cambiar el estado de la postulación
           await axios.post(`http://172.24.0.11:5001/api/postulaciones/${this.idPostulacionAEliminar}`, {
-            posEstado: 'I'  // Cambia el estado a 'Inactivo' o el que corresponda
+            posEstado: 'I'
           });
-          // Volver a obtener los datos después de actualizar el estado
           await this.fetchData();
           alert('Postulación eliminada correctamente');
           this.cerrarModal();
@@ -165,6 +170,11 @@ export default {
       } else {
         alert('No hay una publicación asociada');
       }
+    }
+  },
+  watch: {
+    estadoSeleccionado() {
+      this.filtrarPostulaciones();
     }
   },
   async created() {

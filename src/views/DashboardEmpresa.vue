@@ -90,7 +90,6 @@
               <p class="text-gray-600 mb-4">{{ publicacion.pubDescripcion }}</p>
               <p><strong>Tema:</strong> {{ publicacion.pubTema }}</p>
               <p><strong>Salario:</strong> {{ publicacion.pubSalario }}</p>
-              <p><strong>Fecha:</strong> {{ publicacion.pubFecha }}</p>
               <p><strong>Estado:</strong> {{ publicacion.pubEstado }}</p>
               <div class="mt-4 flex justify-end space-x-2">
                 <button @click="openEditModal(publicacion)"
@@ -343,7 +342,15 @@ export default {
     async agregarPublicacion() {
       if (this.isSubmitting) return; // Evita envíos múltiples
 
+      // Valida el salario antes de continuar
+      if (this.newPublication.pubSalario <= 0) {
+        alert('El salario debe ser mayor que 0');
+        this.isSubmitting = false; // Asegúrate de restaurar el estado de envío
+        return; // Detén la ejecución si la validación falla
+      }
+
       this.isSubmitting = true;
+
       try {
         // Asegúrate de tener el ID del usuario (comId) correctamente
         const response = await axios.post('http://172.24.0.11:5001/api/publicaciones', {
@@ -357,6 +364,7 @@ export default {
           pubFecha: new Date().toISOString()
         });
 
+        // Maneja la respuesta de éxito
         console.log('Publicación creada:', response.data);
         this.successMessage = 'Publicación creada exitosamente.';
         this.resetForm();
@@ -374,7 +382,15 @@ export default {
     async editarPublicacion() {
       if (this.isSubmitting) return; // Evita envíos múltiples
 
+      // Valida el salario antes de continuar
+      if (this.selectedPublication.pubSalario <= 0) {
+        alert('El salario debe ser mayor que 0');
+        this.isSubmitting = false; // Asegúrate de restaurar el estado de envío
+        return; // Detén la ejecución si la validación falla
+      }
+
       this.isSubmitting = true;
+
       try {
         // Destructura el ID y los campos de la publicación seleccionada
         const { pubId, pubTitulo, pubTema, pubDescripcion, pubSalario, comId } = this.selectedPublication;
