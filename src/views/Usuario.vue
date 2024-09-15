@@ -118,7 +118,7 @@
       <!-- Sección -->
       <main class="col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <section class="bg-white p-4 rounded-lg border border-gray-300 shadow-lg hover:shadow-xl transition">
-          <h3 class="text-lg font-semibold text-blue-800">Publicaciones</h3>
+          <h3 class="text-lg font-semibold text-blue-800">Ofertas Laborales</h3>
           <div v-if="publicaciones.length === 0" class="text-center text-gray-500 mt-4">
             No hay publicaciones disponibles.
           </div>
