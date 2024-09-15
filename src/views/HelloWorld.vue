@@ -3,10 +3,14 @@
     <header class="flex justify-between items-center p-4 bg-white shadow">
       <img src="../assets/MultiEmpleo.png" alt="multitrabajos logo" class="h-10">
       <nav class="hidden md:flex space-x-4">
+        <router-link to="/publicacioneslog" class="text-gray-700 hover:text-gray-900">Publicaciones</router-link>
       </nav>
       <div class="flex space-x-4">
-        <router-link to="/register" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Crear cuenta</router-link>
-        <router-link to="/login" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Ingresar</router-link>
+        <router-link to="/register" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Crear
+          cuenta</router-link>
+        <router-link to="/login"
+          class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Ingresar</router-link>
+
       </div>
       <button class="md:hidden block">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -22,9 +26,11 @@
       <a href="#" class="text-zinc-600 hover:text-zinc-800">Cuenta empresa</a>
     </nav>
     <main class="flex flex-col items-center justify-center py-8 px-4 md:py-16 md:px-0">
-      <div class="flex flex-col md:flex-row items-center justify-center max-w-6xl mx-auto space-y-4 md:space-y-0 md:space-x-4">
+      <div
+        class="flex flex-col md:flex-row items-center justify-center max-w-6xl mx-auto space-y-4 md:space-y-0 md:space-x-4">
         <div class="text-center md:text-left md:w-1/2 p-4">
-          <h1 class="text-4xl font-bold">Hay <span class="text-pink-600">4.559</span> trabajos esperándote en Ecuador</h1>
+          <h1 class="text-4xl font-bold">Hay <span class="text-pink-600">4.559</span> trabajos esperándote en Ecuador
+          </h1>
           <div class="mt-6">
             <input type="text" placeholder="Puesto, empresa o palabra clave" class="w-full p-3 border rounded mb-4">
             <select class="w-full p-3 border rounded mb-4" v-model="selectedProvince">
@@ -75,7 +81,8 @@
         <div class="flex flex-wrap justify-center space-x-4">
           <img src="../assets/logoEmpe.png" alt="PRONACA logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
           <img src="../assets/logoEmpe1.png" alt="NIPRO logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
-          <img src="../assets/logoEmpe2.png" alt="multitrabajos logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
+          <img src="../assets/logoEmpe2.png" alt="multitrabajos logo"
+            class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
           <img src="../assets/logoEmpe3.png" alt="QSI logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
           <img src="../assets/logoEmpe5.png" alt="SEDEMI logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
           <img src="../assets/logoEmpe4.png" alt="bayteq logo" class="h-12 w-auto md:h-20 md:w-auto lg:h-24 lg:w-auto">
@@ -95,12 +102,14 @@
           </ul>
           <br>
           <br>
-          <router-link to="/register" class="mt-4 block text-center bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">
+          <router-link to="/register"
+            class="mt-4 block text-center bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">
             Crear cuenta
           </router-link>
         </div>
         <div class="md:w-1/2 p-4">
-          <img src="../assets/formulario.jpg" alt="Ilustración de creación de cuenta" class="rounded-lg shadow-lg w-full">
+          <img src="../assets/formulario.jpg" alt="Ilustración de creación de cuenta"
+            class="rounded-lg shadow-lg w-full">
         </div>
       </div>
     </section>
@@ -153,20 +162,20 @@ export default defineComponent({
   }
 }
 
-  .carousel-container {
-    scroll-snap-type: x mandatory;
-    display: flex;
-    overflow-x: auto;
-    scrollbar-width: none; /* Ocultar la barra de desplazamiento en Firefox */
-  }
+.carousel-container {
+  scroll-snap-type: x mandatory;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* Ocultar la barra de desplazamiento en Firefox */
+}
 
-  .carousel-container::-webkit-scrollbar {
-    display: none; /* Ocultar la barra de desplazamiento en Chrome, Safari y Opera */
-  }
+.carousel-container::-webkit-scrollbar {
+  display: none;
+  /* Ocultar la barra de desplazamiento en Chrome, Safari y Opera */
+}
 
-  .carousel-container > img {
-    scroll-snap-align: start;
-  }
-
-
+.carousel-container>img {
+  scroll-snap-align: start;
+}
 </style>

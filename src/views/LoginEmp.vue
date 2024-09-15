@@ -19,12 +19,13 @@
           <div>
             <label for="comDni" class="sr-only">DNI</label>
             <div class="relative">
-              <input type="text" id="comDni" v-model="dni" class="w-full p-2 pl-10 border border-input rounded-lg"
-                placeholder="Ingresa tu DNI" required />
+              <input type="text" id="comDni" v-model="dni" @input="validateDNI" class="w-full p-2 pl-10 border border-input rounded-lg"
+                placeholder="Ingresa tu Ruc" required />
               <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                 <img aria-hidden="true" alt="dni-icon" src="https://openui.fly.dev/openui/24x24.svg?text=🆔" />
               </span>
             </div>
+            <p v-if="dniError" class="text-red-500">El DNI debe contener solo números.</p>
           </div>
 
           <div>
@@ -92,11 +93,15 @@ export default {
       showErrorAlert: false,
       successMessage: '',
       errorMessage: '',
-      showPasswordRecoveryModal: false, // Variable para controlar la visibilidad del modal
-      comEncargado: ''
+      showPasswordRecoveryModal: false,
+      dniError: false,
+      phoneError: false
     };
   },
   methods: {
+    validateDNI() {
+      this.dniError = !/^\d+$/.test(this.dni);
+    },
     async handleSubmit() {
       if (!this.dni || !this.clave) {
         this.showEmptyFieldsError = true;
@@ -105,8 +110,10 @@ export default {
         this.showEmptyFieldsError = false;
       }
 
+      this.validateDNI();
+      if (this.dniError) return;
+
       try {
-        // Solicitud POST para autenticar al usuario
         const response = await fetch('http://172.24.0.11:5001/api/empresas/login', {
           method: 'POST',
           headers: {
@@ -146,15 +153,12 @@ export default {
           localStorage.setItem('empresaDni', this.dni);
           localStorage.setItem('empresaRole', comRol);
 
-          // Guardar comEncargado en localStorage si está presente
           if (comEncargado && comEncargado.trim() !== '') {
             localStorage.setItem('encargadoNombre', comEncargado);
-            this.comEncargado = comEncargado; // Actualiza la variable local
           } else {
-            localStorage.removeItem('encargadoNombre'); // Elimina la clave si está vacía
+            localStorage.removeItem('encargadoNombre');
           }
 
-          // Solicitud GET para obtener la información de todas las empresas
           const companiesResponse = await fetch('http://172.24.0.11:5001/api/empresas', {
             method: 'GET',
             headers: {
@@ -175,7 +179,7 @@ export default {
 
             setTimeout(() => {
               this.showSuccessAlert = false;
-              this.$router.push('/dashempresas'); // O la ruta correspondiente
+              this.$router.push('/dashempresas');
             }, 1000);
           } else {
             throw new Error('No se encontró la empresa');
@@ -204,19 +208,9 @@ export default {
 
 <style scoped>
 .alert-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 9999;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
 }
 </style>

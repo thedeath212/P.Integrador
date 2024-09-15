@@ -24,6 +24,7 @@ import PerfilEmpresa from './views/Usuario/PerfilEmpresa.vue';
 import PublicacionDetalle from './views/Usuario/Detalle.vue'
 import PostulPage from './views/Usuario/VerPostulacionE.vue'
 import VerDetalleUsuario from './views/Usuario/DetalleUser.vue'
+import PublicacionesLog from './views/PublicacionesLog.vue';
 // Definición de rutas
 const routes = [
   // Sección Principal
@@ -174,6 +175,11 @@ const routes = [
     name: 'VerDetalleUsuario',
     component: VerDetalleUsuario,
     props: true
+  },
+  {
+    path: '/publicacioneslog',
+    name: 'PublicacionesLog',
+    component: PublicacionesLog
   }
 
 ];

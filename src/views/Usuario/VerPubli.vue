@@ -15,17 +15,15 @@
 
       <div v-if="publicacion" class="space-y-6">
         <div class="bg-gray-50 p-6 rounded-lg shadow-md border border-gray-300">
-          <p class="text-lg"><strong class="font-semibold text-gray-700">Título:</strong> {{ publicacion.pubTitulo }}
-          </p>
+          <p class="text-lg"><strong class="font-semibold text-gray-700">Título:</strong> {{ publicacion.pubTitulo }}</p>
           <p class="text-lg"><strong class="font-semibold text-gray-700">Tema:</strong> {{ publicacion.pubTema }}</p>
-          <p class="text-lg"><strong class="font-semibold text-gray-700">Descripción:</strong> {{
-            publicacion.pubDescripcion }}</p>
-          <p class="text-lg"><strong class="font-semibold text-gray-700">Salario:</strong> ${{ publicacion.pubSalario }}
-          </p>
-          <p class="text-lg"><strong class="font-semibold text-gray-700">Estado:</strong> {{ publicacion.pubEstado }}
-          </p>
+          <p class="text-lg"><strong class="font-semibold text-gray-700">Descripción:</strong> {{ publicacion.pubDescripcion }}</p>
+          <p class="text-lg"><strong class="font-semibold text-gray-700">Salario:</strong> ${{ publicacion.pubSalario }}</p>
           <p class="text-lg"><strong class="font-semibold text-gray-700">Fecha:</strong> {{ publicacion.pubFecha }}</p>
           <p class="text-lg"><strong class="font-semibold text-gray-700">Empresa:</strong> {{ empresaNombre }}</p>
+          <p class="text-lg"><strong class="font-semibold text-gray-700">Dirección de empresa:</strong> {{ comDireccion }}</p>
+          <p class="text-lg"><strong class="font-semibold text-gray-700">Teléfono de empresa:</strong> {{ comTelefono }}</p>
+          <p class="text-lg"><strong class="font-semibold text-gray-700">Razón social de empresa:</strong> {{ comRazonSocial }}</p>
         </div>
 
         <div class="flex justify-center mt-6">
@@ -63,6 +61,9 @@ export default {
     return {
       publicacion: null,
       empresaNombre: '',
+      comDireccion: '',
+      comTelefono: '',
+      comRazonSocial: ''
     };
   },
   async created() {
@@ -74,14 +75,23 @@ export default {
       if (response.status === 200) {
         this.publicacion = response.data;
 
-        // Obtener el nombre de la empresa utilizando el comId
+        // Obtener los detalles de la empresa utilizando el comId
         const empresaResponse = await axios.get(`http://172.24.0.11:5001/api/empresas/${this.publicacion.comId}`);
         if (empresaResponse.status === 200) {
+          // Verifica si la respuesta es un objeto único o una lista
           if (Array.isArray(empresaResponse.data)) {
             const empresa = empresaResponse.data.find(emp => emp.comId === this.publicacion.comId);
-            this.empresaNombre = empresa ? empresa.comNombreEmpresa : 'Nombre de empresa no encontrado';
+            if (empresa) {
+              this.empresaNombre = empresa.comNombreEmpresa;
+              this.comDireccion = empresa.comDireccion;
+              this.comTelefono = empresa.comTelefono;
+              this.comRazonSocial = empresa.comRazonSocial;
+            }
           } else {
             this.empresaNombre = empresaResponse.data.comNombreEmpresa;
+            this.comDireccion = empresaResponse.data.comDireccion;
+            this.comTelefono = empresaResponse.data.comTelefono;
+            this.comRazonSocial = empresaResponse.data.comRazonSocial;
           }
         }
       }
@@ -90,7 +100,6 @@ export default {
     }
   },
   methods: {
-
     async postular() {
       try {
         // Enviar la solicitud POST para guardar la postulación

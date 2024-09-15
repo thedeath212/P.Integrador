@@ -1,13 +1,27 @@
 <template>
-    <header class="w-full flex justify-start items-center p-4 bg-gray-100 shadow-md">
-        <button @click="goBack" class="text-xl p-2">
+    <header class="w-full flex justify-start items-center p-4 bg-indigo-600 shadow-md">
+        <button @click="goBack" class="text-xl p-2 text-white">
             <img aria-hidden="true" alt="back-arrow" src="https://openui.fly.dev/openui/24x24.svg?text=←"
                 class="h-6 w-6 md:h-8 md:w-8" />
         </button>
     </header>
 
     <div class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-6 text-gray-800">Postulaciones para la Empresa</h1>
+        <h1 class="text-4xl font-bold mb-6 text-gray-900">Postulaciones para la Empresa</h1>
+
+        <!-- Filtro de búsqueda -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+            <select v-model="filterEstado"
+                class="border border-gray-300 rounded-lg p-3 w-full md:w-1/2 lg:w-1/3 bg-gray-50 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">Todos los estados</option>
+                <option value="A">Aprobado</option>
+                <option value="P">Pendiente</option>
+                <option value="R">Rechazado</option>
+                <option value="I">Inactivo</option>
+            </select>
+            <input v-model="filterDetalle" type="text" placeholder="Buscar por detalle..."
+                class="border border-gray-300 rounded-lg p-3 w-full md:w-1/2 lg:w-1/3 bg-gray-50 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 mt-4 md:mt-0" />
+        </div>
 
         <div v-if="loading" class="text-center">
             <p class="text-gray-600">Cargando postulaciones...</p>
@@ -17,40 +31,37 @@
             <p>Error al cargar las postulaciones: {{ error }}</p>
         </div>
 
-        <div v-if="postulaciones.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="postulacion in postulaciones" :key="postulacion.posId"
-                class="p-6 bg-white border border-gray-300 rounded-lg shadow-lg">
+        <!-- Mostrar postulaciones filtradas -->
+        <div v-if="filteredPostulaciones.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="postulacion in filteredPostulaciones" :key="postulacion.posId"
+                class="p-6 bg-white border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <p class="text-lg font-semibold text-gray-800 mb-2">Detalle: {{ postulacion.posDetalle }}</p>
                 <p class="text-gray-700 mb-4">Estado: <span :class="estadoClass(postulacion.posEstado)">
                         {{ formatEstado(postulacion.posEstado) }}</span></p>
-                <p v-if="postulacion.publicacion" class="text-gray-700 mb-4">Publicación: {{
-                    postulacion.publicacion.pubDetalle || 'No disponible' }}</p>
-                <p v-else class="text-gray-700 mb-4">Publicación: No disponible</p>
-                <p class="text-gray-700 mb-4">Usuario: {{ postulacion.usuario ? `${postulacion.usuario.usuNombres}
-                    ${postulacion.usuario.usuApellidos}` : 'Desconocido' }}</p>
+                <p class="text-gray-700 mb-4">Tema: {{ postulacion.publicacion ? postulacion.publicacion.pubTema : 'No disponible' }}</p>
+                <p class="text-gray-700 mb-4">Publicación: {{ postulacion.publicacion ? postulacion.publicacion.pubDescripcion : 'No disponible' }}</p>
+                <p class="text-gray-700 mb-4">Usuario: {{ postulacion.usuario ? `${postulacion.usuario.usuNombres} ${postulacion.usuario.usuApellidos}` : 'Desconocido' }}</p>
 
-                <!-- Botones para ver información del usuario, atender y rechazar la postulación -->
-                <div class="flex justify-between mt-4">
-                    <!-- Manejo de caso en que `postulacion.usuario` puede ser undefined -->
+                <div v-if="postulacion.posEstado === 'P'" class="flex justify-between mt-4">
                     <router-link
                         :to="{ name: 'VerDetalleUsuario', params: { usuId: postulacion.usuario ? postulacion.usuario.usuId : null } }"
-                        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 inline-block">
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                         Ver Información Usuario
                     </router-link>
 
                     <button @click="atenderPostulacion(postulacion.posId)"
-                        class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                         Atender Postulación
                     </button>
                     <button @click="rechazarPostulacion(postulacion.posId)"
-                        class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
                         Rechazar Postulación
                     </button>
                 </div>
             </div>
         </div>
 
-        <p v-if="postulaciones.length === 0 && !loading" class="text-center text-gray-500">
+        <p v-if="filteredPostulaciones.length === 0 && !loading && !error" class="text-center text-gray-500">
             No hay postulaciones disponibles.
         </p>
     </div>
@@ -66,6 +77,8 @@ export default {
             comId: null,
             postulaciones: [],
             publicaciones: [],
+            filterEstado: '',
+            filterDetalle: '',
             loading: true,
             error: null,
         };
@@ -74,24 +87,23 @@ export default {
         this.comId = this.$route.params.comId;
         this.fetchPostulaciones();
     },
+    computed: {
+        filteredPostulaciones() {
+            return this.postulaciones.filter(postulacion => {
+                const matchesEstado = this.filterEstado ? postulacion.posEstado === this.filterEstado : true;
+                const matchesDetalle = this.filterDetalle ? postulacion.posDetalle.toLowerCase().includes(this.filterDetalle.toLowerCase()) : true;
+                return matchesEstado && matchesDetalle;
+            });
+        }
+    },
     methods: {
         goBack() {
             this.$router.go(-1);
         },
-        verInformacionUsuario(usuId) {
-            if (usuId) {
-                this.$router.push({ name: 'VerDetalleUsuario', params: { usuId } });
-            } else {
-                alert('Información del usuario no disponible.');
-            }
-        },
         async fetchPostulaciones() {
             try {
                 const postulacionesResponse = await axios.get('http://172.24.0.11:5001/api/postulaciones');
-                const postulaciones = postulacionesResponse.data
-                    .filter(postulacion => postulacion.posEmpresa == this.comId)
-                    .filter(postulacion => postulacion.posEstado === 'P') // Filtrar solo postulaciones con estado 'P'
-                    .filter(postulacion => postulacion.posUsuario && postulacion.posDetalle); // Filtrar postulaciones con campos nulos
+                const postulaciones = postulacionesResponse.data;
 
                 const usuariosResponse = await axios.get('http://172.24.0.11:5001/api/usuario');
                 const usuarios = usuariosResponse.data;
@@ -99,26 +111,18 @@ export default {
                 const publicacionesResponse = await axios.get('http://172.24.0.11:5001/api/publicaciones');
                 this.publicaciones = publicacionesResponse.data;
 
-                const usuariosMap = usuarios.reduce((map, usuario) => {
-                    map[usuario.usuId] = usuario;
-                    return map;
-                }, {});
+                const filteredPostulaciones = postulaciones.filter(postulacion => postulacion.posEmpresa == this.comId);
 
                 const publicacionesMap = this.publicaciones.reduce((map, publicacion) => {
                     map[publicacion.pubId] = publicacion;
                     return map;
                 }, {});
 
-                console.log('Usuarios Map:', usuariosMap);
-                console.log('Postulaciones:', postulaciones);
-
-                this.postulaciones = postulaciones.map(postulacion => ({
+                this.postulaciones = filteredPostulaciones.map(postulacion => ({
                     ...postulacion,
-                    usuario: usuariosMap[postulacion.posUsuario] || {},
-                    publicacion: publicacionesMap[postulacion.posPublicacion] || {} // Agregar la publicación
+                    usuario: usuarios.find(usuario => usuario.usuId === postulacion.posUsuario) || {},
+                    publicacion: publicacionesMap[postulacion.posPublicacion] || {}
                 }));
-
-                console.log('Postulaciones con Datos Asociados:', this.postulaciones);
             } catch (err) {
                 this.error = err.message || 'Error al cargar las postulaciones';
             } finally {
@@ -134,22 +138,11 @@ export default {
             };
             return estados[estado] || 'Desconocido';
         },
-        estadoClass(estado) {
-            const classes = {
-                'A': 'text-green-600',
-                'P': 'text-yellow-600',
-                'I': 'text-gray-600',
-                'R': 'text-red-600'
-            };
-            return classes[estado] || 'text-gray-600';
-        },
         async atenderPostulacion(id) {
             try {
-                // Encontrar la postulación que se está atendiendo
                 const postulacion = this.postulaciones.find(p => p.posId === id);
 
-                if (postulacion) {
-                    // Actualizar la postulación
+                if (postulacion && postulacion.posEstado === 'P') {
                     await axios.put(`http://172.24.0.11:5001/api/postulaciones/${id}`, {
                         posId: postulacion.posId,
                         posUsuario: postulacion.posUsuario,
@@ -157,10 +150,10 @@ export default {
                         posDetalle: 'Buenas tardes señor usuario, gracias por postular a nuestra empresa. Esperamos con ansia el día de su entrevista, lo llamaremos esta semana.',
                         posEstado: 'A'
                     });
-                    this.fetchPostulaciones(); // Volver a cargar las postulaciones después de actualizar
-                    alert('Postulación atendida correctamente'); // Mostrar mensaje de éxito
+                    this.fetchPostulaciones();
+                    alert('Postulación atendida correctamente');
                 } else {
-                    this.error = 'Postulación no encontrada';
+                    this.error = 'Postulación no encontrada o no está en estado pendiente';
                 }
             } catch (err) {
                 this.error = err.message || 'Error al atender la postulación';
@@ -168,35 +161,64 @@ export default {
         },
         async rechazarPostulacion(id) {
             try {
-                // Encontrar la postulación que se está rechazando
                 const postulacion = this.postulaciones.find(p => p.posId === id);
 
-                if (postulacion) {
-                    // Actualizar la postulación
+                if (postulacion && postulacion.posEstado === 'P') {
                     await axios.put(`http://172.24.0.11:5001/api/postulaciones/${id}`, {
                         posId: postulacion.posId,
                         posUsuario: postulacion.posUsuario,
                         posEmpresa: postulacion.posEmpresa,
-                        posDetalle: 'Buenas tardes señor usuario, gracias por postular a nuestra empresa. Lo sentimos pero no cumple con los requerimientos para el puesto de trabajo.',
+                        posDetalle: 'Buenas tardes señor usuario, lamentablemente su postulación ha sido rechazada.',
                         posEstado: 'R'
                     });
-                    this.fetchPostulaciones(); // Volver a cargar las postulaciones después de actualizar
-                    alert('Postulación rechazada correctamente'); // Mostrar mensaje de éxito
+                    this.fetchPostulaciones();
+                    alert('Postulación rechazada correctamente');
                 } else {
-                    this.error = 'Postulación no encontrada';
+                    this.error = 'Postulación no encontrada o no está en estado pendiente';
                 }
             } catch (err) {
                 this.error = err.message || 'Error al rechazar la postulación';
             }
+        },
+        estadoClass(estado) {
+            const classes = {
+                'A': 'text-green-600',
+                'P': 'text-blue-600',
+                'I': 'text-gray-600',
+                'R': 'text-red-600'
+            };
+            return classes[estado] || 'text-gray-600';
         }
     }
 };
 </script>
 
+
 <style scoped>
-/* Estilos específicos para PostulPage */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
+/* Agregar estilos personalizados aquí */
+
+.header-button {
+    background-color: #4a4a4a;
+    /* Color de fondo para los botones de la cabecera */
+    border-radius: 0.375rem;
+    /* Bordes redondeados */
+    padding: 0.5rem;
+    /* Espaciado interno */
+}
+
+.card {
+    background-color: #ffffff;
+    /* Color de fondo de la tarjeta */
+    border: 1px solid #e2e8f0;
+    /* Borde de la tarjeta */
+    border-radius: 0.375rem;
+    /* Bordes redondeados */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Sombra de la tarjeta */
+}
+
+.card:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    /* Sombra más grande al pasar el ratón sobre la tarjeta */
 }
 </style>

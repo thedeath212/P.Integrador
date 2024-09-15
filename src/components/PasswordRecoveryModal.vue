@@ -13,11 +13,13 @@
             <label for="dni" class="block text-sm font-medium text-gray-700">DNI</label>
             <input type="text" id="dni" v-model="usuDni" autocomplete="off"
               class="w-full p-2 border border-gray-300 rounded-lg" required />
+            <p v-if="dniError" class="text-red-500 text-sm">{{ dniErrorMessage }}</p>
           </div>
           <div class="mb-4">
             <label for="telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
             <input type="tel" id="telefono" v-model="usuTelefono" autocomplete="off"
               class="w-full p-2 border border-gray-300 rounded-lg" required />
+            <p v-if="telefonoError" class="text-red-500 text-sm">{{ telefonoErrorMessage }}</p>
           </div>
           <div class="flex justify-end">
             <button type="button" @click="closeModal" class="mr-2 p-2 bg-gray-300 rounded-lg">Cancelar</button>
@@ -56,6 +58,10 @@ export default {
       usuCorreo: '',
       usuDni: '',
       usuTelefono: '',
+      dniError: false,
+      dniErrorMessage: '',
+      telefonoError: false,
+      telefonoErrorMessage: '',
       showError: false,
       errorMessage: '',
       showRecoveryModal: false,
@@ -63,9 +69,30 @@ export default {
     };
   },
   methods: {
-    async handleRecovery() {
+    handleRecovery() {
+      this.dniError = false;
+      this.telefonoError = false;
+
+      // Validación del DNI (10 dígitos y no puede ser 22222)
+      if (this.usuDni.length !== 10 || this.usuDni === '22222') {
+        this.dniError = true;
+        this.dniErrorMessage = 'El DNI debe tener 10 dígitos y no puede ser 22222.';
+        return;
+      }
+
+      // Validación del teléfono (10 dígitos)
+      if (this.usuTelefono.length !== 10) {
+        this.telefonoError = true;
+        this.telefonoErrorMessage = 'El número de teléfono debe tener 10 dígitos.';
+        return;
+      }
+
+      // Si las validaciones son correctas, continuar con el proceso de recuperación
+      this.processRecovery();
+    },
+    async processRecovery() {
       try {
-        // Validar los datos del usuario
+        // Solicitud de validación de recuperación de contraseña
         const validationResponse = await fetch('http://172.24.0.11:5001/api/usuario/passrecover', {
           method: 'POST',
           headers: {
@@ -81,27 +108,18 @@ export default {
         if (!validationResponse.ok) {
           this.showError = true;
           this.errorMessage = 'No se encontró la información proporcionada.';
-          console.log('Validation failed:', this.errorMessage);
           return;
         }
 
-        // Obtener todos los usuarios
         const usersResponse = await fetch('http://172.24.0.11:5001/api/usuario');
-
         if (!usersResponse.ok) {
           this.showError = true;
           this.errorMessage = 'No se pudo recuperar la lista de usuarios.';
-          console.log('Failed to fetch users:', this.errorMessage);
           return;
         }
 
         const usersData = await usersResponse.json();
-        console.log('Users data:', usersData);
-
-        // Filtrar el usuario por correo electrónico
-        const user = usersData.find(u =>
-          u.usuCorreo === this.usuCorreo
-        );
+        const user = usersData.find(u => u.usuCorreo === this.usuCorreo);
 
         if (user && user.usuClave) {
           this.recoveryMessage = `Su clave temporal es: ${user.usuClave}`;
@@ -112,7 +130,6 @@ export default {
           this.errorMessage = 'No se encontró la clave temporal.';
         }
 
-        // Limpiar el formulario
         this.usuCorreo = '';
         this.usuDni = '';
         this.usuTelefono = '';
@@ -120,14 +137,13 @@ export default {
       } catch (error) {
         this.showError = true;
         this.errorMessage = 'Hubo un error en la solicitud.';
-        console.error('Error:', error);
       }
     },
     closeModal() {
       this.$emit('close'); // Cierra el modal
     },
     redirectToLogin() {
-      this.showRecoveryModal = false; // Cierra el segundo modal
+      this.showRecoveryModal = false;
       this.$router.push('/login'); // Redirige a la ruta /login
     }
   }
